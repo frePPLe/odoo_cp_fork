@@ -30,7 +30,6 @@ from xml.sax.saxutils import quoteattr
 from datetime import datetime, timedelta
 from pytz import timezone
 import ssl
-from .. import with_mrp
 
 try:
     import odoo
@@ -59,8 +58,8 @@ class Odoo_generator:
 
     def getData(self, model, search=None, order=None, fields=None, ids=None, object=False):
         if search is None:
-            search = []  
-        if fields is None:  
+            search = []
+        if fields is None:
             fields = []
         if ids is not None:
             if object:
@@ -275,10 +274,9 @@ class exporter(object):
         # If multiple types of an entity exists (eg operation_time_per,
         # operation_alternate, operation_alternate, etc) the reference would
         # automatically create an object, potentially of the wrong type.
-        if with_mrp:
-            logger.debug("Exporting calendars.")
-            if self.mode == 1:
-                yield from self.export_calendar()
+        logger.debug("Exporting calendars.")
+        if self.mode == 1:
+            yield from self.export_calendar()
         logger.debug("Exporting locations.")
         yield from self.export_locations()
         self.load_operation_types()
@@ -287,20 +285,18 @@ class exporter(object):
         if self.mode == 1:
             logger.debug("Exporting suppliers.")
             yield from self.export_suppliers()
-            if with_mrp:
-                logger.debug("Exporting skills.")
-                yield from self.export_skills()
-                logger.debug("Exporting workcenters.")
-                yield from self.export_workcenters()
-                logger.debug("Exporting workcenterskills.")
-                yield from self.export_workcenterskills()
+            logger.debug("Exporting skills.")
+            yield from self.export_skills()
+            logger.debug("Exporting workcenters.")
+            yield from self.export_workcenters()
+            logger.debug("Exporting workcenterskills.")
+            yield from self.export_workcenterskills()
         logger.debug("Exporting products.")
         yield from self.export_item_hierarchy()
         yield from self.export_items()
-        if with_mrp:
-            logger.debug("Exporting BOMs.")
-            if self.mode == 1:
-                yield from self.export_boms()
+        logger.debug("Exporting BOMs.")
+        if self.mode == 1:
+            yield from self.export_boms()
         logger.debug("Exporting sales orders.")
         yield from self.export_salesorders()
         # Uncomment the following lines to create forecast models in frepple
@@ -310,9 +306,8 @@ class exporter(object):
         if self.mode == 1:
             logger.debug("Exporting purchase orders.")
             yield from self.export_purchaseorders()
-            if with_mrp:
-                logger.debug("Exporting manufacturing orders.")
-                yield from self.export_manufacturingorders()
+            logger.debug("Exporting manufacturing orders.")
+            yield from self.export_manufacturingorders()
             logger.debug("Exporting reordering rules.")
             yield from self.export_orderpoints()
 
