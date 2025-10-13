@@ -2085,11 +2085,11 @@ class exporter(object):
                 logger.warning("Unknown sales order state: %s." % (state,))
                 continue
 
-            if status != "open":
+            if status == "open":
                 yield (
                     '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                     # Enable only in frepple >= 6.25
-                    # '<owner name=%s policy="%s" xsi:type="demand_group"/>'
+                    '<owner name=%s policy="%s" xsi:type="demand_group"/>'
                     "</demand>\n"
                 ) % (
                     quoteattr(name),
@@ -2106,7 +2106,7 @@ class exporter(object):
                     # quoteattr(i["order_id"][1]),
                     # "alltogether" if j["picking_policy"] == "one" else "independent",
                 )
-            yield "</demands>\n"
+        yield "</demands>\n"
 
     def export_forecasts(self):
         """
