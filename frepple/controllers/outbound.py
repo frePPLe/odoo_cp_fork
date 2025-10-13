@@ -2020,7 +2020,7 @@ class exporter(object):
                             )
                             due = self.formatDateTime(sm["date"] or j["date_order"])
 
-                            if not (qty - reserved_quantity > 0):
+                            if True or not (qty - reserved_quantity > 0):
                                 yield (
                                     '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                                     # Disable the next line in frepple < 6.25
@@ -2085,7 +2085,7 @@ class exporter(object):
                 logger.warning("Unknown sales order state: %s." % (state,))
                 continue
 
-            if status == "open":
+            if status in ["open", "closed"]:
                 yield (
                     '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                     # Enable only in frepple >= 6.25
