@@ -56,7 +56,9 @@ class Odoo_generator:
             return getattr(obj, method)(*args)
         return None
 
-    def getData(self, model, search=None, order=None, fields=None, ids=None, object=False):
+    def getData(
+        self, model, search=None, order=None, fields=None, ids=None, object=False
+    ):
         if search is None:
             search = []
         if fields is None:
@@ -2018,34 +2020,35 @@ class exporter(object):
                             )
                             due = self.formatDateTime(sm["date"] or j["date_order"])
 
-                            yield (
-                                '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
-                                # Disable the next line in frepple < 6.25
-                                '<owner name=%s policy="%s" xsi:type="demand_group"/>'
-                                "</demand>\n"
-                            ) % (
-                                quoteattr(sol_name),
-                                quoteattr(batch),
-                                (
-                                    qty - reserved_quantity
-                                    if qty - reserved_quantity > 0
-                                    else qty
-                                ),
-                                due,
-                                priority,
-                                j["picking_policy"] == "one" and qty or 0.0,
-                                "open" if qty - reserved_quantity > 0 else "closed",
-                                quoteattr(product["name"]),
-                                quoteattr(customer),
-                                quoteattr(location),
-                                # Disable the next 2 lines in frepple < 6.25
-                                quoteattr(i["order_id"][1]),
-                                (
-                                    "alltogether"
-                                    if j["picking_policy"] == "one"
-                                    else "independent"
-                                ),
-                            )
+                            if not (qty - reserved_quantity > 0):
+                                yield (
+                                    '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
+                                    # Disable the next line in frepple < 6.25
+                                    '<owner name=%s policy="%s" xsi:type="demand_group"/>'
+                                    "</demand>\n"
+                                ) % (
+                                    quoteattr(sol_name),
+                                    quoteattr(batch),
+                                    (
+                                        qty - reserved_quantity
+                                        if qty - reserved_quantity > 0
+                                        else qty
+                                    ),
+                                    due,
+                                    priority,
+                                    j["picking_policy"] == "one" and qty or 0.0,
+                                    "open" if qty - reserved_quantity > 0 else "closed",
+                                    quoteattr(product["name"]),
+                                    quoteattr(customer),
+                                    quoteattr(location),
+                                    # Disable the next 2 lines in frepple < 6.25
+                                    quoteattr(i["order_id"][1]),
+                                    (
+                                        "alltogether"
+                                        if j["picking_policy"] == "one"
+                                        else "independent"
+                                    ),
+                                )
                     # We are done with this line, move to the next one
                     continue
                 else:
@@ -2082,27 +2085,28 @@ class exporter(object):
                 logger.warning("Unknown sales order state: %s." % (state,))
                 continue
 
-            yield (
-                '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
-                # Enable only in frepple >= 6.25
-                # '<owner name=%s policy="%s" xsi:type="demand_group"/>'
-                "</demand>\n"
-            ) % (
-                quoteattr(name),
-                quoteattr(batch),
-                qty,
-                due,
-                priority,
-                j["picking_policy"] == "one" and qty or 0.0,
-                status,
-                quoteattr(product["name"]),
-                quoteattr(customer),
-                quoteattr(location),
-                # Enable only in frepple >= 6.25
-                # quoteattr(i["order_id"][1]),
-                # "alltogether" if j["picking_policy"] == "one" else "independent",
-            )
-        yield "</demands>\n"
+            if status != "open":
+                yield (
+                    '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
+                    # Enable only in frepple >= 6.25
+                    # '<owner name=%s policy="%s" xsi:type="demand_group"/>'
+                    "</demand>\n"
+                ) % (
+                    quoteattr(name),
+                    quoteattr(batch),
+                    qty,
+                    due,
+                    priority if status == "open" else priority + 100,
+                    j["picking_policy"] == "one" and qty or 0.0,
+                    status,
+                    quoteattr(product["name"]),
+                    quoteattr(customer),
+                    quoteattr(location),
+                    # Enable only in frepple >= 6.25
+                    # quoteattr(i["order_id"][1]),
+                    # "alltogether" if j["picking_policy"] == "one" else "independent",
+                )
+            yield "</demands>\n"
 
     def export_forecasts(self):
         """
