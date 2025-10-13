@@ -2371,6 +2371,28 @@ class exporter(object):
             # search=[("state", "in", ["draft", "progress", "confirmed", "to_close"])],
             object=True,
         ):
+
+            # Check if the parent MO is closed
+            if "/" in i.name and i.origin:
+                try:
+                    parent_mo = self.generator.getData(
+                        "mrp.production",
+                        # Option 1: import only the odoo status from "confirmed" onwards
+                        search=[("name", "=", i.origin)],
+                        # Option 2: Also import draft manufacturing order from odoo (to avoid that frepple reproposes it another time)
+                        # search=[("state", "in", ["draft", "progress", "confirmed", "to_close"])],
+                        object=True,
+                    )
+                    # The parent MO is done, child MO should be ignored
+                    if parent_mo and parent_mo[0].state in (
+                        "to_close",
+                        "done",
+                        "cancel",
+                    ):
+                        continue
+                except:
+                    pass
+
             # Filter out irrelevant manufacturing orders
             location = self.map_locations.get(i.location_dest_id.id, None)
             if not location and i.picking_type_id:
