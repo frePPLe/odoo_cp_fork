@@ -2417,6 +2417,10 @@ class exporter(object):
                 mto_mo = i._get_sources()
                 batch = mto_mo[0].display_name if mto_mo else i.name
 
+            # CP: make sure the children MOs have the same batch as their parent
+            if "-" in batch:
+                batch = batch.split("-", 1)[0].strip()
+
             # Create a record for the MO
             # Option 1: compute MO end date based on the start date
             yield '<operationplan type="MO" reference=%s batch=%s start="%s" quantity="%s" status="%s">\n' % (
