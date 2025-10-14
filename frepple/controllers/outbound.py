@@ -2373,7 +2373,8 @@ class exporter(object):
         ):
 
             # Check if the parent MO is closed
-            if "/" in i.name and i.origin:
+            closeChildren = False
+            if closeChildren and "/" in i.name and i.origin:
                 try:
                     parent_mo = self.generator.getData(
                         "mrp.production",
