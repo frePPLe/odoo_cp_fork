@@ -27,7 +27,7 @@ import logging
 import pytz
 import xmlrpc.client
 from xml.sax.saxutils import quoteattr
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from pytz import timezone
 import ssl
 
@@ -474,7 +474,9 @@ class exporter(object):
         )
 
     def formatDateTime(self, d, tmzone=None):
-        if not isinstance(d, datetime):
+        if isinstance(d, date) and not isinstance(d, datetime):
+            d = datetime.combine(d, datetime.min.time())
+        elif isinstance(d, str):
             d = datetime.fromisoformat(d)
         return d.astimezone(timezone(tmzone or self.timezone)).strftime(self.timeformat)
 
