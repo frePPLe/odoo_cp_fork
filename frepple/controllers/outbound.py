@@ -1908,6 +1908,7 @@ class exporter(object):
                 "product_uom",
                 "order_id",
                 "move_ids",
+                "client_expected_delivery_date",
             ],
         )
 
@@ -1984,7 +1985,9 @@ class exporter(object):
                 # Not interested in this sales order...
                 continue
             due = self.formatDateTime(
-                j.get("commitment_date", False) or j["date_order"]
+                i.get("client_expected_delivery_date")
+                or j.get("commitment_date", False)
+                or j["date_order"]
             )
             priority = 1  # We give all customer orders the same default priority
 
@@ -1999,8 +2002,10 @@ class exporter(object):
                     self.product_product[i["product_id"][0]]["template"],
                 )
             elif state == "sale":
-                if i["move_ids"] and any(
-                    [mv_id in stock_moves_dict for mv_id in i["move_ids"]]
+                if (
+                    False
+                    and i["move_ids"]
+                    and any([mv_id in stock_moves_dict for mv_id in i["move_ids"]])
                 ):
                     for mv_id in i["move_ids"]:
                         sol_name = (
