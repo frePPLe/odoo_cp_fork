@@ -2534,13 +2534,29 @@ class exporter(object):
                 # Define operations for each WO
                 idx = 10
                 first_wo = True
+
+                # A first loop to figure out which work order has the longest duration
+                longest_index = 0
+                longest_duration = 0
+                loop_index = 0
+                for wo in wo_list:
+                    loop_index += 1
+                    duration_expected = wo.duration_expected
+                    if wo.duration_expected >= longest_duration:
+                        longest_index = loop_index
+                        longest_duration = duration_expected
+
                 for wo in wo_list:
                     suboperation = wo.display_name
                     if len(suboperation) > 300:
                         suboperation = suboperation[0:300]
 
                     # Get remaining duration of the WO
-                    time_left = wo.duration_expected - wo.duration_unit
+                    time_left = (
+                        0
+                        if idx != 10 * longest_index
+                        else wo.duration_expected - wo.duration_unit
+                    )
                     if wo.is_user_working and wo.time_ids:
                         # The WO is currently being worked on
                         for tm in wo.time_ids:
