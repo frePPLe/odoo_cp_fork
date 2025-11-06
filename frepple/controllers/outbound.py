@@ -2535,11 +2535,14 @@ class exporter(object):
                 idx = 10
                 first_wo = True
 
-                # A first loop to figure out which work order has the longest duration
+                # A first loop to figure out which work order has the longest duration (and collect all the work centers)
                 longest_index = 0
                 longest_duration = 0
                 loop_index = 0
+                wc_ids = set()
                 for wo in wo_list:
+                    if wo.workcenter_id and wo.workcenter_id.id:
+                        wc_ids.add(wo.workcenter_id.id)
                     loop_index += 1
                     duration_expected = wo.duration_expected
                     if wo.duration_expected >= longest_duration:
@@ -2569,7 +2572,7 @@ class exporter(object):
                         quoteattr("%s - %s" % (suboperation, wo.id)),
                         idx,
                         self.convert_float_time(
-                            max(time_left, 1),  # Miniminum 1 minute remaining :-)
+                            max(time_left, 0),
                             units="minutes",
                         ),
                         quoteattr(location),
@@ -2617,24 +2620,14 @@ class exporter(object):
                             quoteattr(key),
                         )
                     yield "</flows>"
-                    if (
-                        wo.operation_id
-                        and wo.workcenter_id
-                        and wo.operation_id.workcenter_id
-                        and wo.operation_id.workcenter_id.id in self.map_workcenters
-                        and wo.workcenter_id.owner
-                        and wo.workcenter_id.owner == wo.operation_id.workcenter_id
-                    ):
-                        # Only send a load definition if the bom specifies a parent pool
-                        yield "<loads><load><resource name=%s/></load></loads>" % quoteattr(
-                            self.map_workcenters[wo.operation_id.workcenter_id.id]
-                        )
-                    elif (
-                        wo.workcenter_id and wo.workcenter_id.id in self.map_workcenters
-                    ):
-                        yield "<loads><load><resource name=%s/></load></loads>" % quoteattr(
-                            self.map_workcenters[wo.workcenter_id.id]
-                        )
+                    # The longest LT suboperation gets all the resources
+                    if idx == 10 * longest_index and wc_ids:
+                        load_str = ""
+                        for wc_id in wc_ids:
+                            if wc_id in self.map_workcenters:
+                                load_str = f"{load_str}<load><resource name={quoteattr(self.map_workcenters[wc_id])}/></load>"
+
+                        yield "<loads>%s</loads>" % (load_str,)
                     if wo.operation_id:
                         for wo_sec in wo.secondary_workcenters:
                             if (
