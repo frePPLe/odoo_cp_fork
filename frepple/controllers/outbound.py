@@ -2536,16 +2536,32 @@ class exporter(object):
                 first_wo = True
 
                 # A first loop to figure out which work order has the longest duration (and collect all the work centers)
-                longest_id = 0
+                # The logic should be applied for work orders between 2 outsourced work orders.
+                longest_ids = []  # list of longest work orderd ids in their block
+                outsourced_ids = []  # Keep track of the outsourced work orders
                 longest_duration = 0
+                longest_id = 0  # longest id between 2 outsourced work orders
                 wc_ids = set()
+                wc_blocks = {}
                 for wo in wo_list:
+                    if wo.origin == "Outsource":
+                        outsourced_ids.append(wo.id)
+                        if longest_id > 0:
+                            longest_ids.append(longest_id)
+                            wc_blocks[longest_id] = wc_ids.copy()
+                            wc_ids.clear()
+                            longest_duration = 0
+                            longest_id = 0
+                        continue
                     if wo.workcenter_id and wo.workcenter_id.id:
                         wc_ids.add(wo.workcenter_id.id)
                     duration_expected = wo.duration_expected
                     if wo.duration_expected >= longest_duration:
                         longest_id = wo.id
                         longest_duration = duration_expected
+                if longest_id > 0 and longest_id not in longest_ids:
+                    longest_ids.append(longest_id)
+                    wc_blocks[longest_id] = wc_ids.copy()
 
                 for wo in wo_list:
                     suboperation = wo.display_name
@@ -2555,7 +2571,9 @@ class exporter(object):
                     # Get remaining duration of the WO
                     time_left = (
                         0
-                        if wo.id != longest_id and qty > 1
+                        if wo.id not in longest_ids
+                        and qty > 1
+                        and wo.id not in outsourced_ids
                         else wo.duration_expected - wo.duration_unit
                     )
                     if wo.is_user_working and wo.time_ids:
@@ -2619,9 +2637,9 @@ class exporter(object):
                         )
                     yield "</flows>"
                     # The longest LT suboperation gets all the resources
-                    if qty > 1 and wo.id == longest_id and wc_ids:
+                    if qty > 1 and wo.id in longest_ids and wo.id in wc_blocks:
                         load_str = ""
-                        for wc_id in wc_ids:
+                        for wc_id in wc_blocks[wo.id]:
                             if wc_id in self.map_workcenters:
                                 load_str = f"{load_str}<load><resource name={quoteattr(self.map_workcenters[wc_id])}/></load>"
 
@@ -2733,9 +2751,9 @@ class exporter(object):
                         quoteattr("%s - %s" % (suboperation, wo.id)),
                         quoteattr(i.name),
                     )
-                    if wo.id == longest_id and qty > 1:
+                    if wo.id in longest_ids and qty > 1 and wo.id not in outsourced_ids:
                         loadplan_str = ""
-                        for wc_id in wc_ids:
+                        for wc_id in wc_blocks.get(wo.id):
                             if wc_id in self.map_workcenters:
                                 loadplan_str = f"{loadplan_str}<loadplan><resource name={quoteattr(self.map_workcenters[wc_id])}/></loadplan>"
                         yield f"<loadplans>{loadplan_str}</loadplans>"
