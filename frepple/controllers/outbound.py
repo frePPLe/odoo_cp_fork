@@ -2561,10 +2561,18 @@ class exporter(object):
                 yield "</flows></operation></operationplan>"
             else:
                 # Define an operation for the MO
-                yield '<operation name=%s xsi:type="operation_routing" priority="0"><item name=%s/><location name=%s/><suboperations>' % (
+                yield '<operation name=%s xsi:type="operation_routing" priority="0"><item name=%s/><location name=%s/>%s<suboperations>' % (
                     quoteattr(operation),
                     quoteattr(item["name"]),
                     quoteattr(location),
+                    (
+                        (
+                            '<stringproperty name="origin" value=%s/>\n'
+                            % quoteattr(wo.origin)
+                        )
+                        if wo.origin
+                        else ""
+                    ),
                 )
                 # Define operations for each WO
                 idx = 10
@@ -2820,10 +2828,6 @@ class exporter(object):
                                     ),
                                 )
                         yield "</loadplans>"
-                    if wo.origin:
-                        yield '<stringproperty name="origin" value=%s/>\n' % quoteattr(
-                            wo.origin
-                        )
                     yield "</operationplan>\n"
         yield "</operationplans>\n"
 
