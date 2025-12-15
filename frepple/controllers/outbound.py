@@ -2780,7 +2780,10 @@ class exporter(object):
                                     ),
                                 )
                         yield "</loadplans>"
-
+                    if wo.origin:
+                        yield '<stringproperty name="origin" value=%s/>\n' % quoteattr(
+                            wo.origin
+                        )
                     yield "</operationplan>\n"
         yield "</operationplans>\n"
 
