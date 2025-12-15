@@ -2370,6 +2370,30 @@ class exporter(object):
         now = datetime.now()
         yield "<!-- manufacturing orders in progress -->\n"
         yield "<operationplans>\n"
+
+        # CP Custo
+        # outsource.po.reference table makes the link between the subcontractor POs and the work order ids
+        # fields: purchase_line_id => the id of the purchase order line
+        #         work_order_ids => list of the work order ids subcontracted
+
+        # purchase.order.line has an additional field date_planned to figure out when the subcontractor returns the product
+        workorder_dates = {}
+
+        for i in self.generator.getData(
+            "outsource.po.reference",
+            search=[
+                ("state", "!=", "full_received"),
+                ("purchase_line_id", "!=", False),
+            ],
+            object=True,
+        ):
+            if i.quantity == i.delivered_qty:
+                continue
+            for j in i.work_order_ids:
+                date_planned = i.purchase_line_id.date_planned
+                if date_planned:
+                    workorder_dates[j.id] = date_planned
+
         for i in self.generator.getData(
             "mrp.production",
             # Option 1: import only the odoo status from "confirmed" onwards
@@ -2720,7 +2744,11 @@ class exporter(object):
                     else:
                         state = "approved"
                     try:
-                        if wo.date_finished:
+                        if workorder_dates.get(wo.id):
+                            wo_date = ' end="%s"' % self.formatDateTime(
+                                workorder_dates.get(wo.id)
+                            )
+                        elif wo.date_finished:
                             wo_date = ' end="%s"' % self.formatDateTime(
                                 wo.date_finished
                             )
