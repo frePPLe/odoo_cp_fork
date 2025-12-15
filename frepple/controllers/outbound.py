@@ -2551,18 +2551,10 @@ class exporter(object):
                 yield "</flows></operation></operationplan>"
             else:
                 # Define an operation for the MO
-                yield '<operation name=%s xsi:type="operation_routing" priority="0"><item name=%s/><location name=%s/>%s<suboperations>' % (
+                yield '<operation name=%s xsi:type="operation_routing" priority="0"><item name=%s/><location name=%s/><suboperations>' % (
                     quoteattr(operation),
                     quoteattr(item["name"]),
                     quoteattr(location),
-                    (
-                        (
-                            '<stringproperty name="origin" value=%s/>'
-                            % quoteattr(wo.origin)
-                        )
-                        if wo.origin
-                        else ""
-                    ),
                 )
                 # Define operations for each WO
                 idx = 10
@@ -2617,7 +2609,7 @@ class exporter(object):
                                     (now - tm.date_start).total_seconds() / 60
                                 )
 
-                    yield '<suboperation><operation name=%s priority="%s" type="operation_fixed_time" duration="%s"><location name=%s/><flows>' % (
+                    yield '<suboperation><operation name=%s priority="%s" type="operation_fixed_time" duration="%s"><location name=%s/>%s<flows>' % (
                         quoteattr("%s - %s" % (suboperation, wo.id)),
                         idx,
                         self.convert_float_time(
@@ -2625,6 +2617,14 @@ class exporter(object):
                             units="minutes",
                         ),
                         quoteattr(location),
+                        (
+                            (
+                                '<stringproperty name="origin" value=%s/>'
+                                % quoteattr(wo.origin)
+                            )
+                            if wo.origin
+                            else ""
+                        ),
                     )
                     idx += 10
                     # dictionary needed as BOM in Odoo might have multiple lines with the same product
