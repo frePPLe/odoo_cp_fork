@@ -1889,12 +1889,11 @@ class exporter(object):
         """
         # Get all sales order lines
         search = (
-            [("product_id", "!=", False),
-             ("order_id.invoice_status","!=","invoiced")]
+            [("product_id", "!=", False), ("order_id.invoice_status", "!=", "invoiced")]
             if self.delta >= 999
             else [
                 ("product_id", "!=", False),
-                ("order_id.invoice_status","!=","invoiced"),
+                ("order_id.invoice_status", "!=", "invoiced"),
                 (
                     "write_date",
                     ">=",
@@ -2169,11 +2168,25 @@ class exporter(object):
         'confirmed' -> operationplan.status
         """
         self.subcontracting_mo_po_mapping = {}
+
+        # A first call to get all the outsourced POs (to exclude them)
+        outsourced_pos = [
+            i["purchase_id"][0]
+            for i in self.generator.getData(
+                "outsource.po.reference",
+                fields=[
+                    "purchase_id",
+                ],
+            )
+        ]
+
         po_line = {
             i["id"]: i
             for i in self.generator.getData(
                 "purchase.order.line",
                 search=[
+                    "&",
+                    ("order_id.id", "not in", outsourced_pos),
                     "|",
                     (
                         "order_id.state",
