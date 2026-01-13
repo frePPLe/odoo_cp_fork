@@ -2174,6 +2174,7 @@ class exporter(object):
             i["purchase_id"][0]
             for i in self.generator.getData(
                 "outsource.po.reference",
+                search=[("purchase_id", "!=", False)],
                 fields=[
                     "purchase_id",
                 ],
