@@ -2768,7 +2768,7 @@ class exporter(object):
                     # In the "approved" status, frepple can still reschedule the MO in function of material and capacity
                     # In the "confirmed" status, frepple sees the MO as frozen and unchangeable
                     # We don't want to reschedule the subcontracted MOs
-                    if wo.state == "progress" or workorder_dates.get(wo.id):
+                    if wo.state == "progress":
                         state = "confirmed"
                     elif wo.state in ("done", "to_close", "cancel"):
                         state = "completed"
