@@ -2590,7 +2590,7 @@ class exporter(object):
                 wc_ids = set()
                 wc_blocks = {}
                 for wo in wo_list:
-                    if wo.origin == "Outsource":
+                    if wo.origin == "outsource":
                         outsourced_ids.append(wo.id)
                         if longest_id > 0:
                             longest_ids.append(longest_id)
