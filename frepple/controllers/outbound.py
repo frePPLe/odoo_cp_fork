@@ -2783,7 +2783,10 @@ class exporter(object):
                     else:
                         state = "approved"
                     try:
-                        if workorder_dates.get(wo.id):
+                        if workorder_dates.get(wo.id) and wo.state in (
+                            "progress",
+                            "done",
+                        ):
                             wo_date = ' end="%s"' % self.formatDateTime(
                                 workorder_dates.get(wo.id)
                             )
