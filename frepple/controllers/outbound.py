@@ -2630,6 +2630,14 @@ class exporter(object):
                                     (now - tm.date_start).total_seconds() / 60
                                 )
 
+                    # 3 weeks for outsourced operations that haven't started yet.
+                    if wo.id in outsourced_ids:
+                        if wo.state not in ("progress"):
+                            time_left = 60 * 24 * 21
+                        else:
+                            time_left = (
+                                ((wo.date_start or now) + timedelta(weeks=3)) - now
+                            ).total_seconds() / 60
                     yield '<suboperation><operation name=%s priority="%s" type="operation_fixed_time" duration="%s"><location name=%s/>%s<flows>' % (
                         quoteattr("%s - %s" % (suboperation, wo.id)),
                         idx,
