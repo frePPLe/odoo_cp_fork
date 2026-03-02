@@ -1918,6 +1918,7 @@ class exporter(object):
                 "order_id",
                 "move_ids",
                 "client_expected_delivery_date",
+                "revised_line_date",
             ],
         )
 
@@ -1994,7 +1995,8 @@ class exporter(object):
                 # Not interested in this sales order...
                 continue
             due = self.formatDateTime(
-                i.get("client_expected_delivery_date")
+                i.get("revised_line_date")
+                or i.get("client_expected_delivery_date")
                 or j.get("commitment_date", False)
                 or j["date_order"]
             )
