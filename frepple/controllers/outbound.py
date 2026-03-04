@@ -2415,8 +2415,13 @@ class exporter(object):
             if i.quantity == i.delivered_qty:
                 continue
             for j in i.work_order_ids:
-                if i.partner_id and i.partner_id.id in self.map_customers:
-                    workorder_vendor[j.id] = self.map_customers[i.partner_id.id]
+                if (
+                    i.purchase_id.partner_id
+                    and i.purchase_id.partner_id.id in self.map_customers
+                ):
+                    workorder_vendor[j.id] = self.map_customers[
+                        i.purcahse_id.partner_id.id
+                    ]
                 date_planned = i.purchase_line_id.date_planned
                 if date_planned:
                     workorder_dates[j.id] = date_planned
