@@ -2402,6 +2402,7 @@ class exporter(object):
 
         # purchase.order.line has an additional field date_planned to figure out when the subcontractor returns the product
         workorder_dates = {}
+        workorder_vendor = {}
 
         for i in self.generator.getData(
             "outsource.po.reference",
@@ -2414,6 +2415,8 @@ class exporter(object):
             if i.quantity == i.delivered_qty:
                 continue
             for j in i.work_order_ids:
+                if i.partner_id and i.partner_id.id in self.map_customers:
+                    workorder_vendor[j.id] = self.map_customers[i.partner_id.id]
                 date_planned = i.purchase_line_id.date_planned
                 if date_planned:
                     workorder_dates[j.id] = date_planned
@@ -2815,13 +2818,21 @@ class exporter(object):
                             wo_date = ' start="%s"' % self.formatDateTime(dt)
                     except Exception:
                         wo_date = ""
-                    yield '<operationplan type="MO" reference=%s%s quantity="%s" status="%s"><operation name=%s/><owner reference=%s/>' % (
+                    yield '<operationplan type="MO" reference=%s%s quantity="%s" status="%s"><operation name=%s/><owner reference=%s>%s</operationplan>' % (
                         quoteattr(wo.display_name),
                         wo_date,
                         qty,
                         state,
                         quoteattr("%s - %s" % (suboperation, wo.id)),
                         quoteattr(i.name),
+                        (
+                            (
+                                '<stringproperty name="vendor" value=%s/>\n'
+                                % quoteattr(workorder_vendor[wo.id])
+                            )
+                            if workorder_vendor.get(wo.id)
+                            else ""
+                        ),
                     )
                     if wo.id in longest_ids and qty > 1 and wo.id not in outsourced_ids:
                         loadplan_str = ""
