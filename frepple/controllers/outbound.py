@@ -2641,9 +2641,13 @@ class exporter(object):
                         and wo.id not in outsourced_ids
                         else wo.duration_expected - wo.duration_unit
                     )
-                    if time_left and wo.mes_start_date and not wo.mes_end_date:
-                        # TO DO : consider interruptions ?
-                        time_left = wo.duration_expected - (now - wo.mes_start_date)
+                    if wo.is_user_working and wo.time_ids:
+                        # The WO is currently being worked on
+                        for tm in wo.time_ids:
+                            if tm.date_start and not tm.date_end:
+                                time_left -= round(
+                                    (now - tm.date_start).total_seconds() / 60
+                                )
 
                     # 3 weeks for outsourced operations that haven't started yet.
                     if wo.id in outsourced_ids:
@@ -2791,9 +2795,7 @@ class exporter(object):
                     # In the "approved" status, frepple can still reschedule the MO in function of material and capacity
                     # In the "confirmed" status, frepple sees the MO as frozen and unchangeable
                     # We don't want to reschedule the subcontracted MOs
-                    if wo.state == "progress" or (
-                        wo.mes_start_date and not wo.mes_end_date
-                    ):
+                    if wo.state == "progress":
                         state = "confirmed"
                     elif wo.state in ("done", "to_close", "cancel"):
                         state = "completed"
@@ -2807,16 +2809,18 @@ class exporter(object):
                             wo_date = ' end="%s"' % self.formatDateTime(
                                 workorder_dates.get(wo.id)
                             )
-                        elif wo.mes_end_date:
-                            wo_date = ' end="%s"' % self.formatDateTime(wo.mes_end_date)
+                        elif wo.date_finished:
+                            wo_date = ' end="%s"' % self.formatDateTime(
+                                wo.date_finished
+                            )
                         else:
                             if wo.is_user_working:
                                 dt = now
                             else:
                                 dt = max(
                                     (
-                                        wo.mes_start_date
-                                        if wo.mes_start_date
+                                        wo.date_start
+                                        if wo.date_start
                                         else (
                                             wo.date_planned_start
                                             if wo.date_planned_start
