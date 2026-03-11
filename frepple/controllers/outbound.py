@@ -1002,10 +1002,9 @@ class exporter(object):
                 i["time_efficiency"],
                 quoteattr(self.mfg_location),
                 ("<owner name=%s/>" % quoteattr(owner[1])) if owner else "",
-                # TO DO: deactivate the available calendars that are not correct in Odoo
                 (
                     ("<available name=%s/>" % quoteattr(available[1]))
-                    if available and False
+                    if available and "OUTS" not in name
                     else ""
                 ),
             )
