@@ -324,6 +324,10 @@ class exporter(object):
         # Footer
         yield "</plan>\n"
 
+    def clean_xml_string(self, s):
+        # This filters out characters that are literally illegal in XML
+        return "".join(ch for ch in s if ch.isprintable() or ch in "\t\r\n")
+
     def load_company(self):
         self.company_id = 0
         for i in self.generator.getData(
@@ -1196,7 +1200,7 @@ class exporter(object):
 
             # For make-to-order items the next line needs to XML snippet ' type="item_mto"'.
             yield '<item name=%s %s uom=%s volume="%f" weight="%f" cost="%f" subcategory="%s,%s"%s%s>%s\n' % (
-                quoteattr(name),
+                quoteattr(self.clean_xml_string(name)),
                 (
                     ("description=%s" % (quoteattr(description),))
                     if use_short_names
