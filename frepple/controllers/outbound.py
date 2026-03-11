@@ -2629,7 +2629,7 @@ class exporter(object):
                     wc_blocks[longest_id] = wc_ids.copy()
 
                 for wo in wo_list:
-                    suboperation = wo.display_name
+                    suboperation = self.clean_xml_string(wo.display_name)
                     if len(suboperation) > 300:
                         suboperation = suboperation[0:300]
 
