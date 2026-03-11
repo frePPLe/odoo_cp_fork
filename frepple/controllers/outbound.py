@@ -1187,6 +1187,7 @@ class exporter(object):
             else:
                 name = i["name"][:300]
                 description = i["name"][:500] if use_short_names else None
+            name = self.clean_xml_string(name)
             prod_obj = {
                 "name": name,
                 "template": i["product_tmpl_id"][0],
@@ -1199,7 +1200,7 @@ class exporter(object):
 
             # For make-to-order items the next line needs to XML snippet ' type="item_mto"'.
             yield '<item name=%s %s uom=%s volume="%f" weight="%f" cost="%f" subcategory="%s,%s"%s%s>%s\n' % (
-                quoteattr(self.clean_xml_string(name)),
+                quoteattr(name),
                 (
                     ("description=%s" % (quoteattr(description),))
                     if use_short_names
