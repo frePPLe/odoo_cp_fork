@@ -2486,7 +2486,7 @@ class exporter(object):
             # materials.
             # To reflect this flexibility we need a frepple operation specific
             # to each manufacturing order.
-            operation = i.name
+            operation = self.clean_xml_string(i.name)
             try:
                 startdate = self.formatDateTime(
                     i.date_start if i.date_start else i.date_planned_start
