@@ -2833,7 +2833,7 @@ class exporter(object):
                     except Exception:
                         wo_date = ""
                     yield '<operationplan type="MO" reference=%s%s quantity="%s" status="%s"><operation name=%s/><owner reference=%s/>%s' % (
-                        quoteattr(wo.display_name),
+                        quoteattr(self.clean_xml_string(wo.display_name)),
                         wo_date,
                         qty,
                         state,
