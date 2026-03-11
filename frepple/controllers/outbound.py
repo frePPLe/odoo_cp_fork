@@ -2788,7 +2788,7 @@ class exporter(object):
                 idx = 0
                 for wo in reversed(wo_list):
                     idx += 1.0
-                    suboperation = wo.display_name
+                    suboperation = self.clean_xml_string(wo.display_name)
                     if len(suboperation) > 300:
                         suboperation = suboperation[0:300]
 
