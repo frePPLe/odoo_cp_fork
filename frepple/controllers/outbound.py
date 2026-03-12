@@ -2647,8 +2647,8 @@ class exporter(object):
                         and not wo.mes_end_date
                     ):
                         # The WO is currently being worked on
-                        time_left = (
-                            round(
+                        time_left = round(
+                            (
                                 timedelta(minutes=wo.duration_expected)
                                 - (datetime.now() - wo.mes_start_date)
                             ).total_seconds()
