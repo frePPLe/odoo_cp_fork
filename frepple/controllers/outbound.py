@@ -1084,9 +1084,12 @@ class exporter(object):
             i["id"]: i for i in self.generator.getData("stock.route", fields=["name"])
         }
         self.route_mto = None
+        self.route_buy = None
         for k, v in self.routes.items():
             if v["name"] == "Replenish on Order (MTO)":
                 self.route_mto = k
+            elif v["name"] == "Buy":
+                self.route_buy = k
         for i in self.generator.getData(
             "product.template",
             search=[("type", "not in", ("service", "consu"))],
@@ -1238,13 +1241,13 @@ class exporter(object):
                     else ""
                 ),
             )
-
+            can_buy = self.route_buy in tmpl["route_ids"]
             yield '<booleanproperty name="purchase_ok" value="%s"/>\n' % (
-                1 if tmpl["purchase_ok"] else 0,
+                1 if can_buy else 0,
             )
 
             # Export suppliers for the item, if the item is allowed to be purchased
-            if tmpl["purchase_ok"]:
+            if can_buy:
                 try:
                     # TODO it's inefficient to run a query per product template.
                     results = self.generator.getData(
