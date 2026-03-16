@@ -1928,6 +1928,7 @@ class exporter(object):
                 "move_ids",
                 "client_expected_delivery_date",
                 "revised_line_date",
+                "so_sequence",
             ],
         )
 
@@ -2115,6 +2116,7 @@ class exporter(object):
                     '<demand name=%s batch=%s quantity="%s" due="%s" priority="%s" minshipment="%s" status="%s"><item name=%s/><customer name=%s/><location name=%s/>'
                     # Enable only in frepple >= 6.25
                     '<owner name=%s policy="%s" xsi:type="demand_group"/>'
+                    '<stringproperty name="sn" value="%s"/>'
                     "</demand>\n"
                 ) % (
                     quoteattr(name),
@@ -2130,6 +2132,7 @@ class exporter(object):
                     # Enable only in frepple >= 6.25
                     quoteattr(i["order_id"][1]),
                     "alltogether" if j["picking_policy"] == "one" else "independent",
+                    i["so_sequence"],
                 )
         yield "</demands>\n"
 
