@@ -29,7 +29,7 @@ import xmlrpc.client
 from xml.sax.saxutils import quoteattr
 from datetime import datetime, timedelta, date
 from pytz import timezone
-
+import re
 import ssl
 
 try:
@@ -1998,7 +1998,7 @@ class exporter(object):
 
         for i in so_line:
             name = "%s %d" % (i["order_id"][1], i["id"])
-            batch = i["order_id"][1]
+            batch = f'{i["order_id"][1]}-{i["so_sequence"]}'
             product = self.product_product.get(i["product_id"][0], None)
             j = so[i["order_id"][0]]
             location = j["warehouse_id"][1]
@@ -2508,19 +2508,13 @@ class exporter(object):
             if not qty:
                 continue
 
-            # Get MTO link
-            mto_so = (
-                i.procurement_group_id.mrp_production_ids.move_dest_ids.group_id.sale_id
-            )
-            if mto_so:
-                batch = mto_so[0].name
-            else:
-                mto_mo = i._get_sources()
-                batch = mto_mo[0].display_name if mto_mo else i.name
-
             # CP: make sure the children MOs have the same batch as their parent
-            if "-" in batch:
-                batch = batch.split("-", 1)[0].strip()
+            match = re.match(r"^[^-]*-[\d]*", i.name)
+
+            if match:
+                batch = match.group(0)
+            else:
+                batch = i.name
 
             # Create a record for the MO
             # Option 1: compute MO end date based on the start date
