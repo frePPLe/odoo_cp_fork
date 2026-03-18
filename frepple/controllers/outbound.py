@@ -2562,6 +2562,26 @@ class exporter(object):
                     consumed_item = self.product_product.get(mv.product_id.id, None)
                     if not consumed_item:
                         continue
+
+                    # The product is manufactured, let's see if a MO exists in Done state
+                    # meaning that the product has been manufactured but is not reserved yet
+                    already_manufactured = False
+                    if not mv.reserved_availability and mv.routes == "manufacture":
+                        already_manufactured = (
+                            len(
+                                self.generator.getData(
+                                    "mrp.production",
+                                    search=[
+                                        ("state", "=", "done"),
+                                        ("product_id.id", "=", "mv.product_id.id"),
+                                        ("name", "in", i._get_children().ids),
+                                    ],
+                                    fields=["name"],
+                                )
+                            )
+                            > 0
+                        )
+
                     qty_flow = self.convert_qty_uom(
                         max(
                             0,
@@ -2575,7 +2595,7 @@ class exporter(object):
                         mv.product_uom.id,
                         consumed_item["template"],
                     )
-                    if qty_flow > 0:
+                    if not already_manufactured and qty_flow > 0:
                         operation_materials[consumed_item["name"]] = (
                             operation_materials.get(consumed_item["name"], 0)
                             + (-qty_flow / qty)
