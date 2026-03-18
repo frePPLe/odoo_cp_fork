@@ -2563,25 +2563,6 @@ class exporter(object):
                     if not consumed_item:
                         continue
 
-                    # The product is manufactured, let's see if a MO exists in Done state
-                    # meaning that the product has been manufactured but is not reserved yet
-                    already_manufactured = False
-                    if not mv.reserved_availability and mv.routes == "manufacture":
-                        already_manufactured = (
-                            len(
-                                self.generator.getData(
-                                    "mrp.production",
-                                    search=[
-                                        ("state", "=", "done"),
-                                        ("product_id.id", "=", "mv.product_id.id"),
-                                        ("name", "in", i._get_children().ids),
-                                    ],
-                                    fields=["name"],
-                                )
-                            )
-                            > 0
-                        )
-
                     qty_flow = self.convert_qty_uom(
                         max(
                             0,
@@ -2595,7 +2576,7 @@ class exporter(object):
                         mv.product_uom.id,
                         consumed_item["template"],
                     )
-                    if not already_manufactured and qty_flow > 0:
+                    if qty_flow > 0:
                         operation_materials[consumed_item["name"]] = (
                             operation_materials.get(consumed_item["name"], 0)
                             + (-qty_flow / qty)
@@ -2721,22 +2702,44 @@ class exporter(object):
                         elif not first_wo:
                             continue
 
-                        qty_flow = self.convert_qty_uom(
-                            max(
-                                0,
-                                mv.product_qty
-                                - (
-                                    mv.reserved_availability
-                                    if self.respect_reservations
-                                    else 0
+                        # The product is manufactured, let's see if a MO exists in Done state
+                        # meaning that the product has been manufactured but is not reserved yet
+                        already_manufactured = False
+                        if not mv.reserved_availability and mv.routes == "manufacture":
+                            already_manufactured = (
+                                len(
+                                    self.generator.getData(
+                                        "mrp.production",
+                                        search=[
+                                            ("state", "=", "done"),
+                                            ("product_id.id", "=", "mv.product_id.id"),
+                                            ("name", "in", i._get_children().ids),
+                                        ],
+                                        fields=["name"],
+                                    )
+                                )
+                                > 0
+                            )
+                        if already_manufactured:
+                            qty_flow = 0
+                        else:
+                            qty_flow = self.convert_qty_uom(
+                                max(
+                                    0,
+                                    mv.product_qty
+                                    - (
+                                        mv.reserved_availability
+                                        if self.respect_reservations
+                                        else 0
+                                    ),
                                 ),
-                            ),
-                            mv.product_uom.id,
-                            item["template"],
-                        )
-                        operation_materials[item["name"]] = operation_materials.get(
-                            item["name"], 0
-                        ) + (-qty_flow / qty)
+                                mv.product_uom.id,
+                                item["template"],
+                            )
+                        if qty_flow > 0:
+                            operation_materials[item["name"]] = operation_materials.get(
+                                item["name"], 0
+                            ) + (-qty_flow / qty)
                     for key in operation_materials:
                         yield '<flow quantity="%s"><item name=%s/></flow>\n' % (
                             operation_materials[key],
