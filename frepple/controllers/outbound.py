@@ -2713,7 +2713,7 @@ class exporter(object):
                                         search=[
                                             ("state", "=", "done"),
                                             ("product_id.id", "=", mv.product_id.id),
-                                            ("name", "in", i._get_children().ids),
+                                            ("name", "like", f"{i.name}/%"),
                                         ],
                                         fields=["name"],
                                     )
