@@ -2712,7 +2712,7 @@ class exporter(object):
                                         "mrp.production",
                                         search=[
                                             ("state", "=", "done"),
-                                            ("product_id.id", "=", "mv.product_id.id"),
+                                            ("product_id.id", "=", mv.product_id.id),
                                             ("name", "in", i._get_children().ids),
                                         ],
                                         fields=["name"],
