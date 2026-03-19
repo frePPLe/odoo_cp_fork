@@ -2441,6 +2441,8 @@ class exporter(object):
                 if date_planned:
                     workorder_dates[j.id] = date_planned
 
+        self.reserved_products = {}
+
         for i in self.generator.getData(
             "mrp.production",
             # Option 1: import only the odoo status from "confirmed" onwards
@@ -2704,6 +2706,7 @@ class exporter(object):
 
                         # The product is manufactured, let's see if a MO exists in Done state
                         # meaning that the product has been manufactured but is not reserved yet
+                        # assumption: child MO is of the full required quantity
                         already_manufactured = False
                         if not mv.reserved_availability and mv.routes == "manufacture":
                             already_manufactured = (
@@ -2720,7 +2723,17 @@ class exporter(object):
                                 )
                                 > 0
                             )
+
                         if already_manufactured:
+                            self.reserved_products[
+                                mv.product_id.id
+                            ] = self.reserved_products.get(
+                                mv.product_id.id, 0
+                            ) + self.convert_qty_uom(
+                                mv.product_qty,
+                                mv.product_uom.id,
+                                item["template"],
+                            )
                             qty_flow = 0
                         else:
                             qty_flow = self.convert_qty_uom(
@@ -2741,9 +2754,14 @@ class exporter(object):
                                 item["name"], 0
                             ) + (-qty_flow / qty)
                     for key in operation_materials:
-                        yield '<flow quantity="%s"><item name=%s/></flow>\n' % (
+                        yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                             operation_materials[key],
                             quoteattr(key),
+                            (
+                                f'<stringproperty name="route" value={quoteattr(mv.routes)}/>'
+                                if mv.routes
+                                else ""
+                            ),
                         )
                     yield "</flows>"
                     # The longest LT suboperation gets all the resources
@@ -3160,6 +3178,7 @@ class exporter(object):
                     inventory.get((item["name"], location), 0)
                     + i[2]
                     - (i[3] if self.respect_reservations else 0)
+                    - self.reserved_products.get(i[0], 0)
                 )
         for key, val in inventory.items():
             buf = "%s @ %s" % (key[0], key[1])
