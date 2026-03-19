@@ -2726,9 +2726,9 @@ class exporter(object):
 
                         if already_manufactured:
                             self.reserved_products[
-                                mv.product_id.id
+                                item["name"]
                             ] = self.reserved_products.get(
-                                mv.product_id.id, 0
+                                item["name"], 0
                             ) + self.convert_qty_uom(
                                 mv.product_qty,
                                 mv.product_uom.id,
@@ -3178,13 +3178,12 @@ class exporter(object):
                     inventory.get((item["name"], location), 0)
                     + i[2]
                     - (i[3] if self.respect_reservations else 0)
-                    - self.reserved_products.get(i[0], 0)
                 )
         for key, val in inventory.items():
             buf = "%s @ %s" % (key[0], key[1])
             yield '<buffer name=%s onhand="%f"><item name=%s/><location name=%s/></buffer>\n' % (
                 quoteattr(buf),
-                val,
+                val - self.reserved_products.get(key[0], 0),
                 quoteattr(key[0]),
                 quoteattr(key[1]),
             )
