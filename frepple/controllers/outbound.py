@@ -1906,7 +1906,11 @@ class exporter(object):
         """
         # Get all sales order lines
         search = (
-            [("product_id", "!=", False), ("order_id.invoice_status", "!=", "invoiced")]
+            [
+                ("product_id", "!=", False),
+                ("order_id.invoice_status", "!=", "invoiced"),
+                ("order_id.state", "=", "sale"),
+            ]
             if self.delta >= 999
             else [
                 ("product_id", "!=", False),
@@ -1916,6 +1920,7 @@ class exporter(object):
                     ">=",
                     datetime.now() - timedelta(days=self.delta),
                 ),
+                ("order_id.state", "=", "sale"),
             ]
         )
         so_line = self.generator.getData(
