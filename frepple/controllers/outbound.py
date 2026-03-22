@@ -2699,6 +2699,7 @@ class exporter(object):
                     idx += 10
                     # dictionary needed as BOM in Odoo might have multiple lines with the same product
                     operation_materials = {}
+                    routes = {}
                     for mv in mv_list:
                         item = self.product_product.get(mv.product_id.id, None)
                         if not item:
@@ -2766,13 +2767,14 @@ class exporter(object):
                             operation_materials[item["name"]] = operation_materials.get(
                                 item["name"], 0
                             ) + (-qty_flow / qty)
+                            routes[item["name"]] = mv.routes
                     for key in operation_materials:
                         yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                             operation_materials[key],
                             quoteattr(key),
                             (
-                                f'<stringproperty name="route" value={quoteattr(mv.routes)}/>'
-                                if mv.routes
+                                f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
+                                if routes.get(key)
                                 else ""
                             ),
                         )
