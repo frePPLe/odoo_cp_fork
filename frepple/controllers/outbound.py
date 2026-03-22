@@ -2655,6 +2655,7 @@ class exporter(object):
                         if wo.id not in longest_ids
                         and qty > 1
                         and wo.id not in outsourced_ids
+                        and False
                         else wo.duration_expected
                     )
                     if (
@@ -2780,7 +2781,12 @@ class exporter(object):
                         )
                     yield "</flows>"
                     # The longest LT suboperation gets all the resources
-                    if qty > 1 and wo.id in longest_ids and wo.id in wc_blocks:
+                    if (
+                        False
+                        and qty > 1
+                        and wo.id in longest_ids
+                        and wo.id in wc_blocks
+                    ):
                         load_str = ""
                         for wc_id in wc_blocks[wo.id]:
                             if wc_id in self.map_workcenters:
@@ -2902,7 +2908,12 @@ class exporter(object):
                             else ""
                         ),
                     )
-                    if wo.id in longest_ids and qty > 1 and wo.id not in outsourced_ids:
+                    if (
+                        False
+                        and wo.id in longest_ids
+                        and qty > 1
+                        and wo.id not in outsourced_ids
+                    ):
                         loadplan_str = ""
                         for wc_id in wc_blocks.get(wo.id):
                             if wc_id in self.map_workcenters:
