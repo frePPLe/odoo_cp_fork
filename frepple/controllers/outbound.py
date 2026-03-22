@@ -2743,7 +2743,7 @@ class exporter(object):
                             ] = self.reserved_products.get(
                                 item["name"], 0
                             ) + self.convert_qty_uom(
-                                mv.product_qty,
+                                mv.product_uom_qty,
                                 mv.product_uom.id,
                                 item["template"],
                             )
@@ -2752,7 +2752,7 @@ class exporter(object):
                             qty_flow = self.convert_qty_uom(
                                 max(
                                     0,
-                                    mv.product_qty
+                                    mv.product_uom_qty
                                     - (
                                         mv.reserved_availability
                                         if self.respect_reservations
