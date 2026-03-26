@@ -2619,14 +2619,20 @@ class exporter(object):
                 # A first loop to figure out which work order has the longest duration (and collect all the work centers)
                 # The logic should be applied for work orders between 2 outsourced work orders.
                 longest_ids = []  # list of longest work orderd ids in their block
-                outsourced_ids = []  # Keep track of the outsourced work orders
+                outsourced_ids = (
+                    {}
+                )  # Keep track of the outsourced work orders and their lead time
                 longest_duration = 0
                 longest_id = 0  # longest id between 2 outsourced work orders
                 wc_ids = set()
                 wc_blocks = {}
                 for wo in wo_list:
                     if wo.origin == "outsource":
-                        outsourced_ids.append(wo.id)
+                        outsourced_ids[wo.id] = (
+                            (wo.workcenter_id.time_start or 0)
+                            if wo.workcenter_id
+                            else 0
+                        )
                         if longest_id > 0:
                             longest_ids.append(longest_id)
                             wc_blocks[longest_id] = wc_ids.copy()
@@ -2674,10 +2680,14 @@ class exporter(object):
                     # 3 weeks for outsourced operations that haven't started yet.
                     if wo.id in outsourced_ids:
                         if wo.state not in ("progress"):
-                            time_left = 60 * 24 * 21
+                            time_left = outsourced_ids[wo.id]
                         else:
                             time_left = (
-                                ((wo.date_start or now) + timedelta(weeks=3)) - now
+                                (
+                                    (wo.date_start or now)
+                                    + timedelta(minutes=outsourced_ids[wo.id])
+                                )
+                                - now
                             ).total_seconds() / 60
                     yield '<suboperation><operation name=%s priority="%s" type="operation_fixed_time" duration="%s"><location name=%s/>%s<flows>' % (
                         quoteattr("%s - %s" % (suboperation, wo.id)),
