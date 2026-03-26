@@ -2524,12 +2524,16 @@ class exporter(object):
                 continue
 
             # CP: make sure the children MOs have the same batch as their parent
-            match = re.match(r"^[^-]*-[\d]*", i.name)
-
-            if match:
-                batch = match.group(0)
+            # CP MOs are replenishment MOs based on reordering rules.
+            if i.name.startswith("CP"):
+                batch = ""
             else:
-                batch = i.name
+                match = re.match(r"^[^-]*-[\d]*", i.name)
+
+                if match:
+                    batch = match.group(0)
+                else:
+                    batch = i.name
 
             # Create a record for the MO
             # Option 1: compute MO end date based on the start date
