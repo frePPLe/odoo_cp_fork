@@ -1915,7 +1915,7 @@ class exporter(object):
                     "=",
                     self.company_id,
                 ),  # make sure we don't capture UAE when Singapore
-                ("order_id.name", "not like", "P%"),  # P is for CP1
+                # ("order_id.name", "not like", "P%"),  # P is for CP1
             ]
             if self.delta >= 999
             else [
@@ -1928,7 +1928,7 @@ class exporter(object):
                 ),
                 ("order_id.state", "=", "sale"),
                 ("order_id.company_id", "=", self.company_id),
-                ("order_id.name", "not like", "P%"),
+                # ("order_id.name", "not like", "P%"),
             ]
         )
         so_line = self.generator.getData(
@@ -2459,7 +2459,10 @@ class exporter(object):
         for i in self.generator.getData(
             "mrp.production",
             # Option 1: import only the odoo status from "confirmed" onwards
-            search=[("state", "in", ["progress", "confirmed"])],
+            search=[
+                ("state", "in", ["progress", "confirmed"]),
+                ("company_id", "=", self.company_id),
+            ],
             # Option 2: Also import draft manufacturing order from odoo (to avoid that frepple reproposes it another time)
             # search=[("state", "in", ["draft", "progress", "confirmed", "to_close"])],
             object=True,
