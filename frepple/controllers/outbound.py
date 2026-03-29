@@ -1103,6 +1103,7 @@ class exporter(object):
                 "categ_id",
                 "product_variant_ids",
                 "route_ids",
+                "warehouse_ids",
             ]
             + (
                 [
@@ -1245,6 +1246,14 @@ class exporter(object):
             yield '<booleanproperty name="purchase_ok" value="%s"/>\n' % (
                 1 if can_buy else 0,
             )
+            if tmpl["warehouse_ids"]:
+                yield '<stringproperty name="plant" value="%s"/>\n' % (
+                    ",".join(
+                        self.warehouses[i]
+                        for i in tmpl["warehouse_ids"]
+                        if i in self.warehouses
+                    ),
+                )
 
             # Export suppliers for the item, if the item is allowed to be purchased
             if can_buy:
