@@ -2245,7 +2245,6 @@ class exporter(object):
                             "to approve",
                             "confirmed",
                             "cancel",
-                            "done",
                         ),
                         # Alternative II: send RFQs to frepple to avoid that the same purchasing proposal is generated again by frepple.
                         # ("bid", "confirmed", "cancel"),
