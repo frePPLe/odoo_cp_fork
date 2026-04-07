@@ -2316,13 +2316,13 @@ class exporter(object):
                     start = self.formatDateTime(start if start < end else end)
                     end = self.formatDateTime(end)
                     if not mv.picking_id.check_ids:
-                        qty_done = mv.qty_done
+                        qty_done = mv.quantity_done
                     elif mv.picking_id.quality_check_todo:
                         qty_done = 0
                     elif mv.picking_id.quality_check_fail:
                         qty_done = 0
                     else:
-                        qty_done = mv.qty_done
+                        qty_done = mv.quantity_done
 
                     qty = mv.product_qty - qty_done
                     supplier = self.map_customers.get(j.partner_id.id)
