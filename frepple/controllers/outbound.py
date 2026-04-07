@@ -2320,7 +2320,7 @@ class exporter(object):
                     elif mv.picking_id.quality_check_todo:
                         qty_done = 0
                     elif mv.picking_id.quality_check_fail:
-                        qty_done = 0
+                        qty_done = mv.quantity_done
                     else:
                         qty_done = mv.quantity_done
 
