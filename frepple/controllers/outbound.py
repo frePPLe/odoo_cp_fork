@@ -2692,6 +2692,7 @@ class exporter(object):
                         0
                         if wo.id not in longest_ids
                         and qty > 1
+                        and (i.name.startswith("P") or i.name.startswith("Q"))
                         and wo.id not in outsourced_ids
                         else wo.duration_expected
                     )
@@ -2822,7 +2823,12 @@ class exporter(object):
                         )
                     yield "</flows>"
                     # The longest LT suboperation gets all the resources
-                    if qty > 1 and wo.id in longest_ids and wo.id in wc_blocks:
+                    if (
+                        qty > 1
+                        and (i.name.startswith("P") or i.name.startswith("Q"))
+                        and wo.id in longest_ids
+                        and wo.id in wc_blocks
+                    ):
                         load_str = ""
                         for wc_id in wc_blocks[wo.id]:
                             if wc_id in self.map_workcenters:
@@ -2944,7 +2950,12 @@ class exporter(object):
                             else ""
                         ),
                     )
-                    if wo.id in longest_ids and qty > 1 and wo.id not in outsourced_ids:
+                    if (
+                        wo.id in longest_ids
+                        and qty > 1
+                        and (i.name.startswith("P") or i.name.startswith("Q"))
+                        and wo.id not in outsourced_ids
+                    ):
                         loadplan_str = ""
                         for wc_id in wc_blocks.get(wo.id):
                             if wc_id in self.map_workcenters:
