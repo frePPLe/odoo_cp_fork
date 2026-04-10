@@ -2544,7 +2544,7 @@ class exporter(object):
             except Exception:
                 continue
             qty = self.convert_qty_uom(
-                i.product_qty - (max(i.qty_producing or 0, 0)),
+                max(0, i.product_qty - (i.qty_producing or 0)),
                 i.product_uom_id.id,
                 self.product_product[i.product_id.id]["template"],
             )
