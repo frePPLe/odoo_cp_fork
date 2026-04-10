@@ -958,6 +958,11 @@ class exporter(object):
         first = True
         for i in self.generator.getData(
             "mrp.workcenter",
+            search=[
+                "|",
+                ("active", "=", True),
+                ("active", "=", False),
+            ],
             fields=[
                 "name",
                 "resource_id",
@@ -966,6 +971,7 @@ class exporter(object):
                 "time_efficiency",
                 "default_capacity",
                 "tool",
+                "active",
             ],
         ):
             if first:
@@ -991,7 +997,7 @@ class exporter(object):
                 )
             )
             self.map_workcenters[i["id"]] = name
-            yield '<resource name=%s maximum="%s" category="%s" subcategory="%s" efficiency="%s"><location name=%s/>%s%s</resource>\n' % (
+            yield '<resource name=%s maximum="%s" category="%s" subcategory="%s" efficiency="%s"><location name=%s/>%s%s%s</resource>\n' % (
                 quoteattr(name),
                 i["default_capacity"],
                 i["id"],
@@ -1007,6 +1013,8 @@ class exporter(object):
                     if available and "OUTS" not in name
                     else ""
                 ),
+                '<booleanproperty name="archived" value="%s"/>\n'
+                % (0 if i["active"] else 1,),
             )
         if not first:
             yield "</resources>\n"
