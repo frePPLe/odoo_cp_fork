@@ -638,7 +638,7 @@ class importer(object):
                                 if any(
                                     wo.state == "progress" for wo in mo.workorder_ids
                                 ):
-                                    arg_dict.pop("date_start")
+                                    arg_dict.pop("date_planned_start", None)
                                 mo.write(arg_dict)
                                 mo_references[elem.get("reference")] = mo
 
@@ -662,7 +662,11 @@ class importer(object):
                                             startUpdated = True
                                             wo.date_planned_start = rec["start"]
                                             if not create:
-                                                wo.write({"date_planned_start": wo.date_planned_start})
+                                                wo.write(
+                                                    {
+                                                        "date_planned_start": wo.date_planned_start
+                                                    }
+                                                )
                                         if "end" in rec:
                                             wo.date_planned_finished = rec["end"]
                                             if not create:
@@ -674,7 +678,11 @@ class importer(object):
                                         if not startUpdated and "start" in rec:
                                             wo.date_planned_start = rec["start"]
                                             if not create:
-                                                wo.write({"date_planned_start": wo.date_planned_start})
+                                                wo.write(
+                                                    {
+                                                        "date_planned_start": wo.date_planned_start
+                                                    }
+                                                )
                                         for res in rec["workcenters"]:
                                             wc = mfg_workcenter.browse(res["id"])
                                             if not wc:
@@ -740,31 +748,31 @@ class importer(object):
                 # Remove the element now to keep the DOM tree small
                 wo_data = []
                 root.clear()
-            # OPTIONAL SECTION: Store the planned delivery date (as computed by frepple) on odoo sales orders
-            # elif event == "end" and elem.tag == "demand":
-            #     try:
-            #         deliverydate = (
-            #             timezone(self.env.user.tz)
-            #             .localize(
-            #                 datetime.strptime(
-            #                     elem.get("deliverydate"), "%Y-%m-%d %H:%M:%S"
-            #                 ),
-            #                 is_dst=None,
-            #             )
-            #             .astimezone(pytz.utc)
-            #         ).strftime("%Y-%m-%d %H:%M:%S")
-            #         sol_name = elem.get("name").rsplit(" ", 1)
-            #         for so_line in self.env["sale.order.line"].search(
-            #             [("id", "=", sol_name[1])], limit=1
-            #         ):
-            #             so_line.sale_delivery_date = (
-            #                 datetime.strptime(deliverydate, "%Y-%m-%d %H:%M:%S")
-            #             ).date()
-            #             so_line.frepple_write_date = datetime.now()
-            #             so_line.order_id._compute_commitment_date()
-            #     except Exception as e:
-            #         logger.error("Exception %s" % e)
-            #         msg.append(str(e))
+                # OPTIONAL SECTION: Store the planned delivery date (as computed by frepple) on odoo sales orders
+                # elif event == "end" and elem.tag == "demand":
+                #     try:
+                #         deliverydate = (
+                #             timezone(self.env.user.tz)
+                #             .localize(
+                #                 datetime.strptime(
+                #                     elem.get("deliverydate"), "%Y-%m-%d %H:%M:%S"
+                #                 ),
+                #                 is_dst=None,
+                #             )
+                #             .astimezone(pytz.utc)
+                #         ).strftime("%Y-%m-%d %H:%M:%S")
+                #         sol_name = elem.get("name").rsplit(" ", 1)
+                #         for so_line in self.env["sale.order.line"].search(
+                #             [("id", "=", sol_name[1])], limit=1
+                #         ):
+                #             so_line.sale_delivery_date = (
+                #                 datetime.strptime(deliverydate, "%Y-%m-%d %H:%M:%S")
+                #             ).date()
+                #             so_line.frepple_write_date = datetime.now()
+                #             so_line.order_id._compute_commitment_date()
+                #     except Exception as e:
+                #         logger.error("Exception %s" % e)
+                #         msg.append(str(e))
                 # Remove the element now to keep the DOM tree small
                 root.clear()
             elif event == "start" and elem.tag in ["operationplans", "demands"]:
