@@ -2483,7 +2483,10 @@ class exporter(object):
                     workorder_vendor[j.id] = self.map_customers[
                         i.purchase_id.partner_id.id
                     ]
-                date_planned = i.purchase_line_id.date_planned
+                date_planned = (
+                    i.purchase_line_id.revised_line_date
+                    or i.purchase_line_id.date_planned
+                )
                 if date_planned:
                     workorder_dates[j.id] = date_planned
 
