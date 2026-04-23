@@ -2279,7 +2279,7 @@ class exporter(object):
                         or mv.state in ("draft", "cancel", "done")
                     ):
                         continue
-                    j = mv.purchase_line_id.order_id
+                    j = i.order_id
                     po_line_reference = "%s - %s - %s - %s" % (
                         j.name,
                         mv.picking_id.name,
