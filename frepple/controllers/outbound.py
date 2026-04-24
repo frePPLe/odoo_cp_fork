@@ -2498,7 +2498,7 @@ class exporter(object):
             f" DEBUG DICT: {json.dumps({i:self.formatDateTime(workorder_dates[i]) for i in workorder_dates}, indent=2)} "
         )
 
-        yield debug_comment
+        yield ET.tostring(debug_comment, encoding="unicode")
 
         self.reserved_products = {}
 
