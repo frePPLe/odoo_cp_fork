@@ -2918,10 +2918,8 @@ class exporter(object):
                     # We don't want to reschedule the subcontracted MOs
                     if wo.mes_start_date and not wo.mes_end_date:
                         state = "confirmed"
-                    elif (
-                        wo.state in ("done", "to_close", "cancel")
-                        or wo.mes_start_date
-                        and wo.mes_end_date
+                    elif wo.state in ("done", "to_close", "cancel") or (
+                        wo.mes_start_date and wo.mes_end_date
                     ):
                         state = "completed"
                     else:
@@ -2940,7 +2938,7 @@ class exporter(object):
                             if wo.mes_start_date:
                                 dt = wo.mes_start_date
                             else:
-                                dt = now
+                                dt = wo.date_planned_start or now
 
                             wo_date = ' start="%s"' % self.formatDateTime(dt)
                     except Exception:
