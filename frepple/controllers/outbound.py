@@ -2473,7 +2473,6 @@ class exporter(object):
             "outsource.po.reference",
             search=[
                 ("state", "!=", "full_received"),
-                ("purchase_line_id", "!=", False),
             ],
             object=True,
         ):
