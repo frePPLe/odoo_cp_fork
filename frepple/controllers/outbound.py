@@ -2492,6 +2492,14 @@ class exporter(object):
                 if date_planned:
                     workorder_dates[j.id] = date_planned
 
+        import xml.etree.ElementTree as ET
+
+        debug_comment = ET.Comment(
+            f" DEBUG DICT: {json.dumps(workorder_dates, indent=2)} "
+        )
+
+        yield debug_comment
+
         self.reserved_products = {}
 
         for i in self.generator.getData(
