@@ -1924,6 +1924,7 @@ class exporter(object):
         # Get all sales order lines
         search = (
             [
+                ("price_subtotal", ">", 0),
                 ("product_id", "!=", False),
                 ("order_id.invoice_status", "!=", "invoiced"),
                 ("order_id.state", "=", "sale"),
@@ -1936,6 +1937,7 @@ class exporter(object):
             ]
             if self.delta >= 999
             else [
+                ("price_subtotal", ">", 0),
                 ("product_id", "!=", False),
                 ("order_id.invoice_status", "!=", "invoiced"),
                 (
