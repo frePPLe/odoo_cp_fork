@@ -2467,40 +2467,17 @@ class exporter(object):
         workorder_dates = {}
         workorder_vendor = {}
 
-        import xml.etree.ElementTree as ET
-
         for i in self.generator.getData(
             "outsource.po.reference",
             search=[
                 ("state", "!=", "full_received"),
+                ("purchase_line_id", "!=", False),
             ],
             object=True,
         ):
-            if i.quantity == i.delivered_qty:
+            if i.quantity == i.received_qty:
                 continue
             for j in i.work_order_ids:
-                if j.id == 249745:
-                    yield ET.tostring(
-                        ET.Comment(
-                            f"FOUND: i.purchase_line_id={i.purchase_line_id.id}",
-                            indent=2,
-                        ),
-                        encoding="unicode",
-                    )
-                    yield ET.tostring(
-                        ET.Comment(
-                            f"FOUND: i.purchase_line_id.revised_line_date={i.purchase_line_id.revised_line_date}",
-                            indent=2,
-                        ),
-                        encoding="unicode",
-                    )
-                    yield ET.tostring(
-                        ET.Comment(
-                            f"FOUND: i.purchase_line_id<date_planned={i.purchase_line_id.date_planned}",
-                            indent=2,
-                        ),
-                        encoding="unicode",
-                    )
                 if (
                     i.purchase_id.partner_id
                     and i.purchase_id.partner_id.id in self.map_customers
@@ -2514,6 +2491,8 @@ class exporter(object):
                 )
                 if date_planned:
                     workorder_dates[j.id] = date_planned
+
+        import xml.etree.ElementTree as ET
 
         debug_comment = ET.Comment(
             f" DEBUG DICT: {json.dumps({i:self.formatDateTime(workorder_dates[i]) for i in workorder_dates}, indent=2)} "
