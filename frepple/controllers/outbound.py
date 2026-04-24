@@ -2495,7 +2495,7 @@ class exporter(object):
         import xml.etree.ElementTree as ET
 
         debug_comment = ET.Comment(
-            f" DEBUG DICT: {json.dumps(workorder_dates, indent=2)} "
+            f" DEBUG DICT: {json.dumps({i:self.formatDateTime(workorder_dates[i]) for i in workorder_dates}, indent=2)} "
         )
 
         yield debug_comment
