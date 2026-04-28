@@ -2935,7 +2935,7 @@ class exporter(object):
                     else:
                         state = "approved"
                     try:
-                        if workorder_dates.get(wo.id) and state in (
+                        if workorder_dates.get(wo.id) and wo.state in (
                             "ready",
                             "progress",
                             "done",
