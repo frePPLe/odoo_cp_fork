@@ -675,14 +675,14 @@ class importer(object):
                                                         "date_planned_finished": wo.date_planned_finished
                                                     }
                                                 )
-                                        # if not startUpdated and "start" in rec:
-                                        #     wo.date_planned_start = rec["start"]
-                                        #     if not create:
-                                        #         wo.write(
-                                        #             {
-                                        #                 "date_planned_start": wo.date_planned_start
-                                        #             }
-                                        #         )
+                                        if not startUpdated and "start" in rec:
+                                            wo.date_planned_start = rec["start"]
+                                            if not create:
+                                                wo.write(
+                                                    {
+                                                        "date_planned_start": wo.date_planned_start
+                                                    }
+                                                )
                                         # for res in rec["workcenters"]:
                                         #     wc = mfg_workcenter.browse(res["id"])
                                         #     if not wc:
