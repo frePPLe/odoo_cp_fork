@@ -665,9 +665,15 @@ class importer(object):
                                                 wo.write(
                                                     {
                                                         "date_planned_start": wo.date_planned_start,
-                                                        "date_planned_finished": wo.date_planned_finished
                                                     }
                                                 )
+                                                wo.write(
+                                                    {
+                                                        "date_planned_finished": wo.date_planned_finished
+
+                                                    }
+                                                )
+
                                         if "end" in rec:
                                             wo.date_planned_finished = rec["end"]
 
