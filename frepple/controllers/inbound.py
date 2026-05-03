@@ -664,17 +664,13 @@ class importer(object):
                                             if not create:
                                                 wo.write(
                                                     {
-                                                        "date_planned_start": wo.date_planned_start
+                                                        "date_planned_start": wo.date_planned_start,
+                                                        "date_planned_finished": wo.date_planned_finished
                                                     }
                                                 )
                                         if "end" in rec:
                                             wo.date_planned_finished = rec["end"]
-                                            if not create:
-                                                wo.write(
-                                                    {
-                                                        "date_planned_finished": wo.date_planned_finished
-                                                    }
-                                                )
+
                                         # if not startUpdated and "start" in rec:
                                         #     wo.date_planned_start = rec["start"]
                                         #     if not create:
