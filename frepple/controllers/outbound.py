@@ -2317,10 +2317,10 @@ class exporter(object):
                     location = self.map_locations.get(mv.location_dest_id.id, None)
                     if not location:
                         continue
-                    start = j.date_order
+                    start = j.po_date
                     if not isinstance(start, datetime):
                         start = datetime.fromisoformat(start)
-                    end = mv.date
+                    end = i.revised_line_date or mv.date
                     if not isinstance(end, datetime):
                         end = datetime.fromisoformat(end)
                     start = self.formatDateTime(start if start < end else end)
@@ -2378,10 +2378,10 @@ class exporter(object):
                     continue
                 location = self.mfg_location
                 if location and item and i.product_qty > i.qty_received:
-                    start = j.date_order
+                    start = j.po_date
                     if not isinstance(start, datetime):
                         start = datetime.fromisoformat(start)
-                    end = i.date_planned
+                    end = i.revised_line_date or i.date_planned
                     if not isinstance(end, datetime):
                         end = datetime.fromisoformat(end)
                     start = self.formatDateTime(start if start < end else end)
