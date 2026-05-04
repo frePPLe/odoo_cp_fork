@@ -2737,11 +2737,11 @@ class exporter(object):
                             time_left = outsourced_ids[wo.id]
                         else:
                             if wo.id in workorder_dates:
-                                time_left = (workorder_dates[wo.id] - (wo.mes_date_start or wo.date_start or now)).total_seconds() / 60
+                                time_left = (workorder_dates[wo.id] - (wo.mes_start_date or wo.date_start or now)).total_seconds() / 60
                             else:
                                 time_left = (
                                     (
-                                        (wo.mes_date_start or wo.date_start or now)
+                                        (wo.mes_start_date or wo.date_start or now)
                                         + timedelta(minutes=outsourced_ids[wo.id])
                                     )
                                     - now
