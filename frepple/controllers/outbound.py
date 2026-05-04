@@ -2736,13 +2736,16 @@ class exporter(object):
                         if wo.state not in ("progress"):
                             time_left = outsourced_ids[wo.id]
                         else:
-                            time_left = (
-                                (
-                                    (wo.date_start or now)
-                                    + timedelta(minutes=outsourced_ids[wo.id])
-                                )
-                                - now
-                            ).total_seconds() / 60
+                            if wo.id in workorder_dates:
+                                time_left = (workorder_dates[wo.id] - (wo.mes_date_start or wo.date_start or now)).total_seconds() / 60
+                            else:
+                                time_left = (
+                                    (
+                                        (wo.mes_date_start or wo.date_start or now)
+                                        + timedelta(minutes=outsourced_ids[wo.id])
+                                    )
+                                    - now
+                                ).total_seconds() / 60
                     yield '<suboperation><operation name=%s priority="%s" type="operation_fixed_time" duration="%s"><location name=%s/>%s<flows>' % (
                         quoteattr("%s - %s" % (suboperation, wo.id)),
                         idx,
