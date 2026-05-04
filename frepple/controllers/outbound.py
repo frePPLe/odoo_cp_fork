@@ -2935,23 +2935,27 @@ class exporter(object):
                     else:
                         state = "approved"
                     try:
-                        if workorder_dates.get(wo.id) and wo.state in (
-                            "ready",
-                            "progress",
-                            "done",
-                        ):
-                            wo_date = ' end="%s"' % self.formatDateTime(
-                                workorder_dates.get(wo.id)
-                            )
-                        elif wo.mes_end_date:
-                            wo_date = ' end="%s"' % self.formatDateTime(wo.mes_end_date)
+                        if wo.state == "done":
+                            wo_date = (' start="%s" end="%s"'
+                                       % (self.formatDateTime(wo.mes_start_date or wo.date_planned_start or now),self.formatDateTime(wo.mes_end_date or wo.date_planned_finished or now)))
                         else:
-                            if wo.mes_start_date:
-                                dt = wo.mes_start_date
+                            if workorder_dates.get(wo.id) and wo.state in (
+                                "ready",
+                                "progress",
+                                "done",
+                            ):
+                                wo_date = ' end="%s"' % self.formatDateTime(
+                                    workorder_dates.get(wo.id)
+                                )
+                            elif wo.mes_end_date:
+                                wo_date = ' end="%s"' % self.formatDateTime(wo.mes_end_date)
                             else:
-                                dt = wo.date_planned_start or now
+                                if wo.mes_start_date:
+                                    dt = wo.mes_start_date
+                                else:
+                                    dt = wo.date_planned_start or now
 
-                            wo_date = ' start="%s"' % self.formatDateTime(dt)
+                                wo_date = ' start="%s"' % self.formatDateTime(dt)
                     except Exception:
                         wo_date = ""
                     yield '<operationplan type="MO" reference=%s%s quantity="%s" status="%s"><operation name=%s/><owner reference=%s/>%s' % (
