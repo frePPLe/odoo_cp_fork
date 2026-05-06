@@ -2279,6 +2279,7 @@ class exporter(object):
                         or not mv.purchase_line_id
                         or not mv.location_dest_id
                         or mv.state in ("draft", "cancel", "done")
+                        or (mv.state == "done" and mv.picking_id.quality_check_todo)
                     ):
                         continue
                     j = i.order_id
@@ -2737,7 +2738,10 @@ class exporter(object):
                             time_left = outsourced_ids[wo.id]
                         else:
                             if wo.id in workorder_dates:
-                                time_left = (workorder_dates[wo.id] - (wo.mes_start_date or wo.date_start or now)).total_seconds() / 60
+                                time_left = (
+                                    workorder_dates[wo.id]
+                                    - (wo.mes_start_date or wo.date_start or now)
+                                ).total_seconds() / 60
                             else:
                                 time_left = (
                                     (
@@ -2939,8 +2943,14 @@ class exporter(object):
                         state = "approved"
                     try:
                         if wo.state == "done":
-                            wo_date = (' start="%s" end="%s"'
-                                       % (self.formatDateTime(wo.mes_start_date or wo.date_planned_start or now),self.formatDateTime(wo.mes_end_date or wo.date_planned_finished or now)))
+                            wo_date = ' start="%s" end="%s"' % (
+                                self.formatDateTime(
+                                    wo.mes_start_date or wo.date_planned_start or now
+                                ),
+                                self.formatDateTime(
+                                    wo.mes_end_date or wo.date_planned_finished or now
+                                ),
+                            )
                         else:
                             if workorder_dates.get(wo.id) and wo.state in (
                                 "ready",
@@ -2951,7 +2961,9 @@ class exporter(object):
                                     workorder_dates.get(wo.id)
                                 )
                             elif wo.mes_end_date:
-                                wo_date = ' end="%s"' % self.formatDateTime(wo.mes_end_date)
+                                wo_date = ' end="%s"' % self.formatDateTime(
+                                    wo.mes_end_date
+                                )
                             else:
                                 if wo.mes_start_date:
                                     dt = wo.mes_start_date
@@ -3142,8 +3154,7 @@ class exporter(object):
         yield "<operationplans>\n"
         if isinstance(self.generator, Odoo_generator):
             # SQL query gives much better performance
-            self.generator.env.cr.execute(
-                """
+            self.generator.env.cr.execute("""
                 SELECT stock_quant.product_id,
                 stock_quant.location_id,
                 sum(stock_quant.quantity) as quantity,
@@ -3159,8 +3170,7 @@ class exporter(object):
                 stock_lot.name,
                 stock_lot.expiration_date
                 ORDER BY location_id ASC
-                """
-            )
+                """)
             data = self.generator.env.cr.fetchall()
         else:
             data = [
