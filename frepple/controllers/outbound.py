@@ -2239,7 +2239,7 @@ class exporter(object):
         linked_mos = {
             i["purchase_line_id"][0]: i["manufacturing_order_id"][1]
             for i in self.generator.getData(
-                "purchase_mo_link",
+                "purchase.mo.link",
                 search=[
                     ("manufacturing_order_id.state", "in", ("confirmed", "progress"))
                 ],
