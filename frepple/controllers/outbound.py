@@ -2235,6 +2235,18 @@ class exporter(object):
             )
         ]
 
+        # A second call to get the linked MOs
+        linked_mos = {
+            i["purchase_line_id"][0]: i["manufacturing_order_id"][1]
+            for i in self.generator.getData(
+                "purchase_mo_link",
+                search=[
+                    ("manufacturing_order_id.state", "in", ("confirmed", "progress"))
+                ],
+                fields=["purchase_line_id", "manufacturing_order_id"],
+            )
+        }
+
         po_line = {
             i["id"]: i
             for i in self.generator.getData(
@@ -2359,7 +2371,7 @@ class exporter(object):
                     if not supplier:
                         continue
                     if qty >= 0:
-                        yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                        yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
                             quoteattr(po_line_reference),
                             "batch=%s " % quoteattr(batch) if batch else "",
                             start,
@@ -2368,6 +2380,12 @@ class exporter(object):
                             quoteattr(item["name"]),
                             quoteattr(location),
                             quoteattr(supplier),
+                            (
+                                '<stringproperty name="linked_mo" value="%s"/>'
+                                % (linked_mos[i["id"]])
+                                if i["id"] in linked_mos
+                                else ""
+                            ),
                         )
             else:
                 # METHOD 2: Create purchasing operations from purchase order lines
@@ -2430,7 +2448,7 @@ class exporter(object):
                     if not supplier:
                         continue
 
-                    yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                    yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
                         quoteattr("%s - %s" % (j.name, i.id)),
                         "batch=%s " % quoteattr(batch) if batch else "",
                         start,
@@ -2439,6 +2457,12 @@ class exporter(object):
                         quoteattr(item["name"]),
                         quoteattr(location),
                         quoteattr(supplier),
+                        (
+                            '<stringproperty name="linked_mo" value="%s"/>'
+                            % (linked_mos[i["id"]])
+                            if i["id"] in linked_mos
+                            else ""
+                        ),
                     )
         yield "</operationplans>\n"
 
