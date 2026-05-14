@@ -2333,7 +2333,12 @@ class exporter(object):
                     start = j.po_date or j.date_order
                     if not isinstance(start, datetime):
                         start = datetime.fromisoformat(start)
-                    end = i.revised_line_date or mv.date
+                    # if the goods are in QC, they'll be available in 3 days from now
+                    end = (
+                        datetime.now() + timedelta(days=3)
+                        if ((mv.state == "done" and mv.picking_id.quality_check_todo))
+                        else (i.revised_line_date or mv.date)
+                    )
                     if not isinstance(end, datetime):
                         end = datetime.fromisoformat(end)
                     start = self.formatDateTime(start if start < end else end)
