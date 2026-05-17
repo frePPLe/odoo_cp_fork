@@ -2240,12 +2240,12 @@ class exporter(object):
         for i in self.generator.getData(
             "purchase.mo.link",
             search=[("manufacturing_order_id.state", "in", ("confirmed", "progress"))],
-            fields=["purchase_line_id", "manufacturing_order_id"],
+            fields=["purchase_line_id", "manufacturing_order_id", "quantity"],
         ):
             linked_mos[i["purchase_line_id"][0]] = (
-                i["manufacturing_order_id"][1]
+                f"[{i['manufacturing_order_id'][1]},{i['quantity']}]"
                 if i["purchase_line_id"][0] not in linked_mos
-                else f"{linked_mos[i['purchase_line_id'][0]]};{i['manufacturing_order_id'][1]}"
+                else f"{linked_mos[i['purchase_line_id'][0]]};[{i['manufacturing_order_id'][1]},{i['quantity']}]"
             )
 
         po_line = {
