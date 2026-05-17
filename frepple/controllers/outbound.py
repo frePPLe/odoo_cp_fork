@@ -2385,7 +2385,7 @@ class exporter(object):
                         quantity_to_subtract = 0
                         if i["id"] in linked_mos:
                             for mo in linked_mos[i["id"]]:
-                                yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
+                                yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                     quoteattr(f"{po_line_reference} for {mo}"),
                                     "batch=%s " % quoteattr(batch) if batch else "",
                                     start,
@@ -2396,17 +2396,11 @@ class exporter(object):
                                     ),
                                     quoteattr(location),
                                     quoteattr(supplier),
-                                    (
-                                        '<stringproperty name="linked_mo" value="%s"/>'
-                                        % (json.dumps(linked_mos[i["id"]]),)
-                                        if i["id"] in linked_mos
-                                        else ""
-                                    ),
                                 )
                                 quantity_to_subtract += linked_mos[i["id"]][mo]
 
                         if qty - quantity_to_subtract > 0:
-                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
+                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                 quoteattr(po_line_reference),
                                 "batch=%s " % quoteattr(batch) if batch else "",
                                 start,
@@ -2415,12 +2409,6 @@ class exporter(object):
                                 quoteattr(item["name"]),
                                 quoteattr(location),
                                 quoteattr(supplier),
-                                (
-                                    '<stringproperty name="linked_mo" value="%s"/>'
-                                    % (json.dumps(linked_mos[i["id"]]),)
-                                    if i["id"] in linked_mos
-                                    else ""
-                                ),
                             )
             else:
                 # METHOD 2: Create purchasing operations from purchase order lines
@@ -2485,7 +2473,7 @@ class exporter(object):
                     quantity_to_subtract = 0
                     if i["id"] in linked_mos:
                         for mo in linked_mos[i["id"]]:
-                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
+                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                 quoteattr("%s - %s for %s" % (j.name, i.id, mo)),
                                 "batch=%s " % quoteattr(batch) if batch else "",
                                 start,
@@ -2496,17 +2484,11 @@ class exporter(object):
                                 ),
                                 quoteattr(location),
                                 quoteattr(supplier),
-                                (
-                                    '<stringproperty name="linked_mo" value="%s"/>'
-                                    % (json.dumps(linked_mos[i["id"]]),)
-                                    if i["id"] in linked_mos
-                                    else ""
-                                ),
                             )
                             quantity_to_subtract += linked_mos[i["id"]][mo]
 
                     if qty - quantity_to_subtract > 0:
-                        yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
+                        yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                             quoteattr("%s - %s" % (j.name, i.id)),
                             "batch=%s " % quoteattr(batch) if batch else "",
                             start,
@@ -2515,12 +2497,6 @@ class exporter(object):
                             quoteattr(item["name"]),
                             quoteattr(location),
                             quoteattr(supplier),
-                            (
-                                '<stringproperty name="linked_mo" value="%s"/>'
-                                % (json.dumps(linked_mos[i["id"]]),)
-                                if i["id"] in linked_mos
-                                else ""
-                            ),
                         )
         yield "</operationplans>\n"
 
