@@ -2482,7 +2482,7 @@ class exporter(object):
                             break
                     if not supplier:
                         continue
-
+                    quantity_to_subtract = 0
                     if i["id"] in linked_mos:
                         for mo in linked_mos[i["id"]]:
                             yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
