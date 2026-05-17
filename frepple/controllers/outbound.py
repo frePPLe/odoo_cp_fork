@@ -2222,6 +2222,7 @@ class exporter(object):
         'confirmed' -> operationplan.status
         """
         self.subcontracting_mo_po_mapping = {}
+        self.linked_mo = {}
 
         # A first call to get all the outsourced POs (to exclude them)
         outsourced_pos = [
@@ -2385,6 +2386,14 @@ class exporter(object):
                         quantity_to_subtract = 0
                         if i["id"] in linked_mos:
                             for mo in linked_mos[i["id"]]:
+                                if mo not in self.linked_mo:
+                                    self.linked_mo[mo] = {}
+                                self.linked_mo[mo][item["name"]] = {
+                                    "quantity": linked_mos[i["id"]][mo],
+                                    "item": f"{item['name']} from {po_line_reference} for {mo}",
+                                    "reference": f"{po_line_reference} for {mo}",
+                                }
+
                                 yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                     quoteattr(f"{po_line_reference} for {mo}"),
                                     "batch=%s " % quoteattr(batch) if batch else "",
@@ -2473,6 +2482,13 @@ class exporter(object):
                     quantity_to_subtract = 0
                     if i["id"] in linked_mos:
                         for mo in linked_mos[i["id"]]:
+                            if mo not in self.linked_mo:
+                                self.linked_mo[mo] = {}
+                                self.linked_mo[mo][item["name"]] = {
+                                    "quantity": linked_mos[i["id"]][mo],
+                                    "item": f"{item['name']} from {po_line_reference} for {mo}",
+                                    "reference": "%s - %s for %s" % (j.name, i.id, mo),
+                                }
                             yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                 quoteattr("%s - %s for %s" % (j.name, i.id, mo)),
                                 "batch=%s " % quoteattr(batch) if batch else "",
@@ -2551,13 +2567,13 @@ class exporter(object):
                 if date_planned:
                     workorder_dates[j.id] = date_planned
 
-        import xml.etree.ElementTree as ET
+        # import xml.etree.ElementTree as ET
 
-        debug_comment = ET.Comment(
-            f" DEBUG DICT: {json.dumps({i:self.formatDateTime(workorder_dates[i]) for i in workorder_dates}, indent=2)} "
-        )
+        # debug_comment = ET.Comment(
+        #     f" DEBUG DICT: {json.dumps({i:self.formatDateTime(workorder_dates[i]) for i in workorder_dates}, indent=2)} "
+        # )
 
-        yield ET.tostring(debug_comment, encoding="unicode")
+        # yield ET.tostring(debug_comment, encoding="unicode")
 
         self.reserved_products = {}
 
@@ -2900,7 +2916,12 @@ class exporter(object):
                     for key in operation_materials:
                         yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                             operation_materials[key],
-                            quoteattr(key),
+                            (
+                                quoteattr(key)
+                                if i["name"] not in self.self.linked_mo
+                                or key not in self.self.linked_mo[i["name"]]
+                                else self.linked_mo[i["name"]][key]["item"]
+                            ),
                             (
                                 f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
                                 if routes.get(key)
