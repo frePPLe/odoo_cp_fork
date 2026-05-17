@@ -2486,7 +2486,7 @@ class exporter(object):
                                 self.linked_mo[mo] = {}
                                 self.linked_mo[mo][item["name"]] = {
                                     "quantity": linked_mos[i["id"]][mo],
-                                    "item": f"{item['name']} from {po_line_reference} for {mo}",
+                                    "item": f"{item['name']} from {j.name} - {i.id} for {mo}",
                                     "reference": "%s - %s for %s" % (j.name, i.id, mo),
                                 }
                             yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
@@ -2496,7 +2496,7 @@ class exporter(object):
                                 end,
                                 linked_mos[i["id"]][mo],
                                 quoteattr(
-                                    f"{item['name']} from {po_line_reference} for {mo}"
+                                    f"{item['name']} from {j.name} - {i.id} for {mo}"
                                 ),
                                 quoteattr(location),
                                 quoteattr(supplier),
