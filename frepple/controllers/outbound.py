@@ -2918,8 +2918,8 @@ class exporter(object):
                             operation_materials[key],
                             (
                                 quoteattr(key)
-                                if i["name"] not in self.self.linked_mo
-                                or key not in self.self.linked_mo[i["name"]]
+                                if i["name"] not in self.linked_mo
+                                or key not in self.linked_mo[i["name"]]
                                 else self.linked_mo[i["name"]][key]["item"]
                             ),
                             (
