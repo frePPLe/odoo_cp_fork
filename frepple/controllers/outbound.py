@@ -2917,10 +2917,12 @@ class exporter(object):
                         yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                             operation_materials[key],
                             (
-                                quoteattr(key)
-                                if i["name"] not in self.linked_mo
-                                or key not in self.linked_mo[i["name"]]
-                                else self.linked_mo[i["name"]][key]["item"]
+                                quoteattr(
+                                    key
+                                    if i["name"] not in self.linked_mo
+                                    or key not in self.linked_mo[i["name"]]
+                                    else self.linked_mo[i["name"]][key]["item"]
+                                )
                             ),
                             (
                                 f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
