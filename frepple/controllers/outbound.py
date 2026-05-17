@@ -2245,7 +2245,7 @@ class exporter(object):
             linked_mos[i["purchase_line_id"][0]] = (
                 i["manufacturing_order_id"][1]
                 if i["purchase_line_id"][0] not in linked_mos
-                else f"{linked_mos[i["purchase_line_id"][0]]};{i["manufacturing_order_id"][1]}"
+                else f"{linked_mos[i['purchase_line_id'][0]]};{i['manufacturing_order_id'][1]}"
             )
 
         po_line = {
