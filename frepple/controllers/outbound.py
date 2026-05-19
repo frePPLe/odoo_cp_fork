@@ -2424,9 +2424,8 @@ class exporter(object):
                                 quantity_to_subtract += linked_mos[i["id"]][mo]
 
                         if qty - quantity_to_subtract > 0:
-                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                            yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                 quoteattr(po_line_reference),
-                                "batch=%s " % quoteattr(batch) if batch else "",
                                 start,
                                 end,
                                 qty - quantity_to_subtract,
@@ -2529,9 +2528,8 @@ class exporter(object):
                             quantity_to_subtract += linked_mos[i["id"]][mo]
 
                     if qty - quantity_to_subtract > 0:
-                        yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                        yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                             quoteattr("%s - %s" % (j.name, i.id)),
-                            "batch=%s " % quoteattr(batch) if batch else "",
                             start,
                             end,
                             qty,
