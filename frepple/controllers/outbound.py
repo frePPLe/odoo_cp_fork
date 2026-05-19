@@ -2530,7 +2530,7 @@ class exporter(object):
                             quoteattr("%s - %s" % (j.name, i.id)),
                             start,
                             end,
-                            qty,
+                            qty - quantity_to_subtract,
                             quoteattr(item["name"]),
                             quoteattr(location),
                             quoteattr(supplier),
