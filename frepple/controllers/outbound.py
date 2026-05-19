@@ -2395,7 +2395,7 @@ class exporter(object):
                         if i["id"] in linked_mos:
                             for mo in linked_mos[i["id"]]:
                                 if mo.startswith("CP"):
-                                    batch = ""
+                                    batch = mo
                                 else:
                                     match = re.match(r"^[^-]*-[\d]*", mo)
 
@@ -2497,7 +2497,7 @@ class exporter(object):
                     if i["id"] in linked_mos:
                         for mo in linked_mos[i["id"]]:
                             if mo.startswith("CP"):
-                                batch = ""
+                                batch = mo
                             else:
                                 match = re.match(r"^[^-]*-[\d]*", mo)
 
@@ -2671,7 +2671,7 @@ class exporter(object):
             # CP: make sure the children MOs have the same batch as their parent
             # CP MOs are replenishment MOs based on reordering rules.
             if i.name.startswith("CP"):
-                batch = ""
+                batch = i.name
             else:
                 match = re.match(r"^[^-]*-[\d]*", i.name)
 
