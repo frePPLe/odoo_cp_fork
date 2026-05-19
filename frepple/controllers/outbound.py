@@ -2222,6 +2222,11 @@ class exporter(object):
         'confirmed' -> operationplan.status
         """
         self.subcontracting_mo_po_mapping = {}
+
+        # used to send information to mo
+        # key: the mo name
+        # value: a dict{item: allocated quantity}
+
         self.linked_mo = {}
 
         # A first call to get all the outsourced POs (to exclude them)
@@ -2238,6 +2243,9 @@ class exporter(object):
 
         # A second call to get the linked MOs
         linked_mos = {}
+        # key = poline_id
+        # value = a dict with the MO name as key and the total allocated quantity as value
+
         for i in self.generator.getData(
             "purchase.mo.link",
             search=[("manufacturing_order_id.state", "in", ("confirmed", "progress"))],
@@ -2386,13 +2394,22 @@ class exporter(object):
                         quantity_to_subtract = 0
                         if i["id"] in linked_mos:
                             for mo in linked_mos[i["id"]]:
+                                if mo.startswith("CP"):
+                                    batch = ""
+                                else:
+                                    match = re.match(r"^[^-]*-[\d]*", mo)
+
+                                    if match:
+                                        batch = match.group(0)
+                                    else:
+                                        batch = mo
+
                                 if mo not in self.linked_mo:
                                     self.linked_mo[mo] = {}
-                                self.linked_mo[mo][item["name"]] = {
-                                    "quantity": linked_mos[i["id"]][mo],
-                                    "item": f"{item['name']} from {po_line_reference} for {mo}",
-                                    "reference": f"{po_line_reference} for {mo}",
-                                }
+                                self.linked_mo[mo][item["name"]] = (
+                                    self.linked_mo[mo].get(item["name"], 0)
+                                    + linked_mos[i["id"]][mo]
+                                )
 
                                 yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                     quoteattr(f"{po_line_reference} for {mo}"),
@@ -2400,9 +2417,7 @@ class exporter(object):
                                     start,
                                     end,
                                     linked_mos[i["id"]][mo],
-                                    quoteattr(
-                                        f"{item['name']} from {po_line_reference} for {mo}"
-                                    ),
+                                    quoteattr(item["name"]),
                                     quoteattr(location),
                                     quoteattr(supplier),
                                 )
@@ -2415,7 +2430,9 @@ class exporter(object):
                                 start,
                                 end,
                                 qty - quantity_to_subtract,
-                                quoteattr(item["name"]),
+                                quoteattr(
+                                    f"{item['name']}{' (unallocated)' if quantity_to_subtract > 0 else ''}"
+                                ),
                                 quoteattr(location),
                                 quoteattr(supplier),
                             )
@@ -2482,22 +2499,30 @@ class exporter(object):
                     quantity_to_subtract = 0
                     if i["id"] in linked_mos:
                         for mo in linked_mos[i["id"]]:
+                            if mo.startswith("CP"):
+                                batch = ""
+                            else:
+                                match = re.match(r"^[^-]*-[\d]*", mo)
+
+                                if match:
+                                    batch = match.group(0)
+                                else:
+                                    batch = mo
+
                             if mo not in self.linked_mo:
                                 self.linked_mo[mo] = {}
-                                self.linked_mo[mo][item["name"]] = {
-                                    "quantity": linked_mos[i["id"]][mo],
-                                    "item": f"{item['name']} from {j.name} - {i.id} for {mo}",
-                                    "reference": "%s - %s for %s" % (j.name, i.id, mo),
-                                }
+                            self.linked_mo[mo][item["name"]] = (
+                                self.linked_mo[mo].get(item["name"], 0)
+                                + linked_mos[i["id"]][mo]
+                            )
+
                             yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                 quoteattr("%s - %s for %s" % (j.name, i.id, mo)),
                                 "batch=%s " % quoteattr(batch) if batch else "",
                                 start,
                                 end,
                                 linked_mos[i["id"]][mo],
-                                quoteattr(
-                                    f"{item['name']} from {j.name} - {i.id} for {mo}"
-                                ),
+                                quoteattr(item["name"]),
                                 quoteattr(location),
                                 quoteattr(supplier),
                             )
@@ -2510,7 +2535,9 @@ class exporter(object):
                             start,
                             end,
                             qty,
-                            quoteattr(item["name"]),
+                            quoteattr(
+                                f"{item['name']}{' (unallocated)' if quantity_to_subtract > 0 else ''}"
+                            ),
                             quoteattr(location),
                             quoteattr(supplier),
                         )
@@ -2914,22 +2941,45 @@ class exporter(object):
                             ) + (-qty_flow / qty)
                             routes[item["name"]] = mv.routes
                     for key in operation_materials:
-                        yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
-                            operation_materials[key],
-                            (
-                                quoteattr(
-                                    key
-                                    if i["name"] not in self.linked_mo
-                                    or key not in self.linked_mo[i["name"]]
-                                    else self.linked_mo[i["name"]][key]["item"]
-                                )
-                            ),
-                            (
-                                f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
-                                if routes.get(key)
-                                else ""
-                            ),
-                        )
+                        if (
+                            not self.linked_mo.get(i["name"])
+                            or not self.linked_mo.get(i["name"]).get(key)
+                            or -self.linked_mo.get(i["name"]).get(key)
+                            == operation_materials[key]
+                        ):
+                            yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
+                                operation_materials[key],
+                                key,
+                                (
+                                    f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
+                                    if routes.get(key)
+                                    else ""
+                                ),
+                            )
+                        else:
+                            # partially allocated
+                            # one record with the allocated quantity
+                            yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
+                                self.linked_mo.get(i["name"]).get(key),
+                                key,
+                                (
+                                    f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
+                                    if routes.get(key)
+                                    else ""
+                                ),
+                            )
+                            # and one record with the remainder
+                            yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
+                                operation_materials[key]
+                                + self.linked_mo.get(i["name"]).get(key),
+                                f"{key} (unallocated)",
+                                (
+                                    f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
+                                    if routes.get(key)
+                                    else ""
+                                ),
+                            )
+
                     yield "</flows>"
                     # The longest LT suboperation gets all the resources
                     if (
