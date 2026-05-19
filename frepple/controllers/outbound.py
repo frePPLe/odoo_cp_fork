@@ -2935,12 +2935,9 @@ class exporter(object):
                             ) + (-qty_flow / qty)
                             routes[item["name"]] = mv.routes
                     for key in operation_materials:
-                        if (
-                            not self.linked_mo.get(i["name"])
-                            or not self.linked_mo.get(i["name"]).get(key)
-                            or -self.linked_mo.get(i["name"]).get(key) / qty
-                            == operation_materials[key]
-                        ):
+                        if not self.linked_mo.get(i["name"]) or not self.linked_mo.get(
+                            i["name"]
+                        ).get(key):
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                                 operation_materials[key],
                                 quoteattr(key),
@@ -2951,7 +2948,7 @@ class exporter(object):
                                 ),
                             )
                         else:
-                            # partially allocated
+                            # allocated
                             # one record with the allocated quantity
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                                 -self.linked_mo.get(i["name"]).get(key) / qty,
@@ -2962,17 +2959,22 @@ class exporter(object):
                                     else ""
                                 ),
                             )
-                            # and one record with the remainder
-                            yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
+                            # and one record with the remainder if any
+                            if (
                                 operation_materials[key]
-                                + self.linked_mo.get(i["name"]).get(key) / qty,
-                                quoteattr(key),
-                                (
-                                    f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
-                                    if routes.get(key)
-                                    else ""
-                                ),
-                            )
+                                + self.linked_mo.get(i["name"]).get(key) / qty
+                                < 0
+                            ):
+                                yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
+                                    operation_materials[key]
+                                    + self.linked_mo.get(i["name"]).get(key) / qty,
+                                    quoteattr(key),
+                                    (
+                                        f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
+                                        if routes.get(key)
+                                        else ""
+                                    ),
+                                )
 
                     yield "</flows>"
                     # The longest LT suboperation gets all the resources
