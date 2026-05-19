@@ -2949,7 +2949,7 @@ class exporter(object):
                         ):
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                                 operation_materials[key],
-                                key,
+                                quoteattr(key),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
                                     if routes.get(key)
@@ -2961,7 +2961,7 @@ class exporter(object):
                             # one record with the allocated quantity
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                                 self.linked_mo.get(i["name"]).get(key),
-                                key,
+                                quoteattr(key),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
                                     if routes.get(key)
@@ -2972,7 +2972,7 @@ class exporter(object):
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                                 operation_materials[key]
                                 + self.linked_mo.get(i["name"]).get(key),
-                                f"{key} (unallocated)",
+                                quoteattr(f"{key} (unallocated)"),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
                                     if routes.get(key)
