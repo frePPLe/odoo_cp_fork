@@ -2954,7 +2954,7 @@ class exporter(object):
                             # partially allocated
                             # one record with the allocated quantity
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
-                                -self.linked_mo.get(i["name"]).get(key),
+                                -self.linked_mo.get(i["name"]).get(key) / qty,
                                 quoteattr(f"{key} (reserved)"),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
@@ -2965,7 +2965,7 @@ class exporter(object):
                             # and one record with the remainder
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                                 operation_materials[key]
-                                + self.linked_mo.get(i["name"]).get(key),
+                                + self.linked_mo.get(i["name"]).get(key) / qty,
                                 quoteattr(key),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
