@@ -2938,7 +2938,7 @@ class exporter(object):
                         if (
                             not self.linked_mo.get(i["name"])
                             or not self.linked_mo.get(i["name"]).get(key)
-                            or -self.linked_mo.get(i["name"]).get(key)
+                            or -self.linked_mo.get(i["name"]).get(key) / qty
                             == operation_materials[key]
                         ):
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
