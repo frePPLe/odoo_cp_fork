@@ -2417,7 +2417,7 @@ class exporter(object):
                                     start,
                                     end,
                                     linked_mos[i["id"]][mo],
-                                    quoteattr(item["name"]),
+                                    quoteattr(f"{item['name']} (reserved)"),
                                     quoteattr(location),
                                     quoteattr(supplier),
                                 )
@@ -2429,9 +2429,7 @@ class exporter(object):
                                 start,
                                 end,
                                 qty - quantity_to_subtract,
-                                quoteattr(
-                                    f"{item['name']}{' (unallocated)' if quantity_to_subtract > 0 else ''}"
-                                ),
+                                quoteattr(item["name"]),
                                 quoteattr(location),
                                 quoteattr(supplier),
                             )
@@ -2521,7 +2519,7 @@ class exporter(object):
                                 start,
                                 end,
                                 linked_mos[i["id"]][mo],
-                                quoteattr(item["name"]),
+                                quoteattr(f"{item['name']} (reserved)"),
                                 quoteattr(location),
                                 quoteattr(supplier),
                             )
@@ -2533,9 +2531,7 @@ class exporter(object):
                             start,
                             end,
                             qty,
-                            quoteattr(
-                                f"{item['name']}{' (unallocated)' if quantity_to_subtract > 0 else ''}"
-                            ),
+                            quoteattr(item["name"]),
                             quoteattr(location),
                             quoteattr(supplier),
                         )
@@ -2959,7 +2955,7 @@ class exporter(object):
                             # one record with the allocated quantity
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                                 self.linked_mo.get(i["name"]).get(key),
-                                quoteattr(key),
+                                quoteattr(f"{key} (reserved)"),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
                                     if routes.get(key)
@@ -2970,7 +2966,7 @@ class exporter(object):
                             yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
                                 operation_materials[key]
                                 + self.linked_mo.get(i["name"]).get(key),
-                                quoteattr(f"{key} (unallocated)"),
+                                quoteattr(key),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
                                     if routes.get(key)
