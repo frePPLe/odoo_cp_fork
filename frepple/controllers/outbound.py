@@ -1964,6 +1964,8 @@ class exporter(object):
                 "client_expected_delivery_date",
                 "revised_line_date",
                 "so_sequence",
+                "part_type_id",
+                "qcp_id",
             ],
         )
 
@@ -1980,6 +1982,7 @@ class exporter(object):
                     "date_order",
                     "picking_policy",
                     "warehouse_id",
+                    "geo_unit_id",
                 ],
             )
         }
@@ -2152,6 +2155,9 @@ class exporter(object):
                     # Enable only in frepple >= 6.25
                     '<owner name=%s policy="%s" xsi:type="demand_group"/>'
                     '<stringproperty name="sn" value="%s"/>'
+                    '<stringproperty name="qcp" value=%s/>'
+                    '<stringproperty name="geo_unit" value=%s/>'
+                    '<stringproperty name="part_type" value=%s/>'
                     "</demand>\n"
                 ) % (
                     quoteattr(name),
@@ -2168,6 +2174,9 @@ class exporter(object):
                     quoteattr(i["order_id"][1]),
                     "alltogether" if j["picking_policy"] == "one" else "independent",
                     i["so_sequence"],
+                    quoteattr(i["qcp_id"][1] if i["qcp_id"] else ""),
+                    quoteattr(j["geo_unit_id"][1] if j["geo_unit_id"] else ""),
+                    quoteattr(i["part_type_id"][1] if i["part_type_id"] else ""),
                 )
         yield "</demands>\n"
 
