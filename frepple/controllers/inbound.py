@@ -540,7 +540,13 @@ class importer(object):
                             mo = mo_references[elem.get("owner")]
                         else:
                             # Existing MO
-                            mo = mfg_order.search([("name", "=", elem.get("owner"))])
+                            mo = mfg_order.search(
+                                [
+                                    ("name", "=", elem.get("owner")),
+                                    ("company_id", "=", self.company.id),
+                                ],
+                                limit=1,
+                            )
                         if mo:
                             wo_list = mfg_workorder.search(
                                 [
@@ -601,6 +607,11 @@ class importer(object):
                                                     # Change secondary work center
                                                     sec.write({"workcenter_id": res.id})
                                                     break
+                                    wo = (
+                                        mfg_workorder.with_company(self.company)
+                                        .with_context(context)
+                                        .browse(wo.id)
+                                    )
                                     wo.write(data)
                                     break
                     else:
@@ -659,7 +670,13 @@ class importer(object):
                                 mo = (
                                     mfg_order.with_company(self.company)
                                     .with_context(context)
-                                    .search([("name", "=", elem.get("reference"))])
+                                    .search(
+                                        [
+                                            ("name", "=", elem.get("reference")),
+                                            ("company_id", "=", self.company.id),
+                                        ],
+                                        limit=1,
+                                    )
                                 )
                             except Exception:
                                 continue
