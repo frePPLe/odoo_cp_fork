@@ -743,7 +743,7 @@ class importer(object):
                     import traceback
 
                     logger.info(traceback.format_exc())
-                    logger.error("Exception %s" % e)
+                    logger.error("FREPPLE Exception %s" % e)
                     msg.append(str(e))
                 # Remove the element now to keep the DOM tree small
                 wo_data = []
