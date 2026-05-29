@@ -498,7 +498,9 @@ class importer(object):
                             mo = mo_references[elem.get("owner")]
                         else:
                             # Existing MO
-                            mo = mfg_order.search([("name", "=", elem.get("owner"))])
+                            mo = mfg_order.with_company(self.company).search(
+                                [("name", "=", elem.get("owner"))]
+                            )
                         if mo:
                             wo_list = mfg_workorder.search(
                                 [
@@ -614,8 +616,10 @@ class importer(object):
                             # MO update
                             create = False
                             try:
-                                mo = mfg_order.with_context(context).search(
-                                    [("name", "=", elem.get("reference"))]
+                                mo = (
+                                    mfg_order.with_company(self.company)
+                                    .with_context(context)
+                                    .search([("name", "=", elem.get("reference"))])
                                 )
                             except Exception:
                                 continue
