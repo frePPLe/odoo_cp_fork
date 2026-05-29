@@ -649,6 +649,9 @@ class importer(object):
                         # Process the workorder information we received
                         if wo_data:
                             for wo in mo.workorder_ids:
+                                # We don't want to update the completed work orders
+                                if wo.state in ["done", "cancel"]:
+                                    continue
                                 for rec in wo_data:
                                     if (create and rec["id"] == wo.operation_id.id) or (
                                         not create and rec["id"] == wo.id
