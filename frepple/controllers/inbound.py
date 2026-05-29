@@ -73,6 +73,20 @@ class importer(object):
 
     def run(self):
         msg = []
+
+        context = (
+            dict(self.env["res.users"].with_user(self.actual_user).context_get())
+            if self.actual_user
+            else dict(self.env.context)
+        )
+        context.update(
+            {
+                "allowed_company_ids": [self.company.id],
+                "force_company": self.company.id,
+                "company_id": self.company.id,
+            }
+        )
+
         if self.actual_user:
             product_product = self.env["product.product"].with_user(self.actual_user)
             product_supplierinfo = self.env["product.supplierinfo"].with_user(
@@ -81,9 +95,24 @@ class importer(object):
             uom_uom = self.env["uom.uom"].with_user(self.actual_user)
             proc_order = self.env["purchase.order"].with_user(self.actual_user)
             proc_orderline = self.env["purchase.order.line"].with_user(self.actual_user)
-            mfg_order = self.env["mrp.production"].with_user(self.actual_user)
-            mfg_workorder = self.env["mrp.workorder"].with_user(self.actual_user)
-            mfg_workcenter = self.env["mrp.workcenter"].with_user(self.actual_user)
+            mfg_order = (
+                self.env["mrp.production"]
+                .with_user(self.actual_user)
+                .with_company(self.company)
+                .with_context(context)
+            )
+            mfg_workorder = (
+                self.env["mrp.workorder"]
+                .with_user(self.actual_user)
+                .with_company(self.company)
+                .with_context(context)
+            )
+            mfg_workcenter = (
+                self.env["mrp.workcenter"]
+                .with_user(self.actual_user)
+                .with_company(self.company)
+                .with_context(context)
+            )
             mfg_workorder_secondary = self.env[
                 "mrp.workorder.secondary.workcenter"
             ].with_user(self.actual_user)
@@ -94,8 +123,11 @@ class importer(object):
             stck_move = self.env["stock.move"].with_user(self.actual_user)
             stck_warehouse = self.env["stock.warehouse"].with_user(self.actual_user)
             stck_location = self.env["stock.location"].with_user(self.actual_user)
-            change_product_qty = self.env["change.production.qty"].with_user(
-                self.actual_user
+            change_product_qty = (
+                self.env["change.production.qty"]
+                .with_user(self.actual_user)
+                .with_company(self.company)
+                .with_context(context)
             )
         else:
             product_product = self.env["product.product"]
@@ -103,16 +135,32 @@ class importer(object):
             uom_uom = self.env["uom.uom"]
             proc_order = self.env["purchase.order"]
             proc_orderline = self.env["purchase.order.line"]
-            mfg_order = self.env["mrp.production"]
-            mfg_workorder = self.env["mrp.workorder"]
-            mfg_workcenter = self.env["mrp.workcenter"]
+            mfg_order = (
+                self.env["mrp.production"]
+                .with_company(self.company)
+                .with_context(context)
+            )
+            mfg_workorder = (
+                self.env["mrp.workorder"]
+                .with_company(self.company)
+                .with_context(context)
+            )
+            mfg_workcenter = (
+                self.env["mrp.workcenter"]
+                .with_company(self.company)
+                .with_context(context)
+            )
             mfg_workorder_secondary = self.env["mrp.workorder.secondary.workcenter"]
             stck_picking_type = self.env["stock.picking.type"]
             stck_picking = self.env["stock.picking"]
             stck_move = self.env["stock.move"]
             stck_warehouse = self.env["stock.warehouse"]
             stck_location = self.env["stock.location"]
-            change_product_qty = self.env["change.production.qty"]
+            change_product_qty = (
+                self.env["change.production.qty"]
+                .with_company(self.company)
+                .with_context(context)
+            )
         if self.mode == 1:
             # Cancel previous draft purchase quotations
             m = self.env["purchase.order"]
@@ -155,12 +203,6 @@ class importer(object):
 
         # Workcenters of a workorder to update
         resources = []
-
-        context = (
-            dict(self.env["res.users"].with_user(self.actual_user).context_get())
-            if self.actual_user
-            else dict(self.env.context)
-        )
 
         for event, elem in iterparse(self.datafile, events=("start", "end")):
             if (
