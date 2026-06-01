@@ -2996,7 +2996,7 @@ class exporter(object):
                         load_str = ""
                         for wc_id in wc_blocks[wo.id]:
                             if wc_id in self.map_workcenters:
-                                load_str = f"{load_str}<load><resource name={quoteattr(self.map_workcenters[wc_id])}/></load>"
+                                load_str = f"{load_str}<load search={quoteattr('MINCOSTPENALTY')}><resource name={quoteattr(self.map_workcenters[wc_id])}/></load>"
 
                         yield "<loads>%s</loads>" % (load_str,)
                     else:
@@ -3009,14 +3009,14 @@ class exporter(object):
                             and wo.workcenter_id.owner == wo.operation_id.workcenter_id
                         ):
                             # Only send a load definition if the bom specifies a parent pool
-                            yield "<loads><load><resource name=%s/></load></loads>" % quoteattr(
+                            yield '<loads><load search="MINCOSTPENALTY"><resource name=%s/></load></loads>' % quoteattr(
                                 self.map_workcenters[wo.operation_id.workcenter_id.id]
                             )
                         elif (
                             wo.workcenter_id
                             and wo.workcenter_id.id in self.map_workcenters
                         ):
-                            yield "<loads><load><resource name=%s/></load></loads>" % quoteattr(
+                            yield '<loads><load search="MINCOSTPENALTY"><resource name=%s/></load></loads>' % quoteattr(
                                 self.map_workcenters[wo.workcenter_id.id]
                             )
                     if wo.operation_id:
