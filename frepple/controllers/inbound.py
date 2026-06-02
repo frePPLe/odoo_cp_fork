@@ -561,7 +561,7 @@ class importer(object):
                                                     # Change secondary work center
                                                     sec.write({"workcenter_id": res.id})
                                                     break
-                                    wo.write(data)
+                                    wo.with_company(self.company).sudo().write(data)
                                     break
                     else:
                         # Create or update a manufacturing order
@@ -670,26 +670,30 @@ class importer(object):
                                             startUpdated = True
                                             wo.date_planned_start = rec["start"]
                                             if not create:
-                                                wo.sudo().write(
-                                                    {
-                                                        "date_planned_start": wo.date_planned_start
-                                                    }
+                                                wo.with_company(
+                                                    self.company
+                                                ).sudo().write(
+                                                    {"date_planned_start": rec["start"]}
                                                 )
                                         if "end" in rec:
-                                            wo.sudo().date_planned_finished = rec["end"]
+                                            wo.date_planned_finished = rec["end"]
                                             if not create:
-                                                wo.write(
+                                                wo.with_company(
+                                                    self.company
+                                                ).sudo().write(
                                                     {
-                                                        "date_planned_finished": wo.date_planned_finished
+                                                        "date_planned_finished": rec[
+                                                            "end"
+                                                        ]
                                                     }
                                                 )
                                         if not startUpdated and "start" in rec:
                                             wo.date_planned_start = rec["start"]
                                             if not create:
-                                                wo.sudo().write(
-                                                    {
-                                                        "date_planned_start": wo.date_planned_start
-                                                    }
+                                                wo.with_company(
+                                                    self.company
+                                                ).sudo().write(
+                                                    {"date_planned_start": rec["start"]}
                                                 )
                                         # for res in rec["workcenters"]:
                                         #     wc = mfg_workcenter.browse(res["id"])
