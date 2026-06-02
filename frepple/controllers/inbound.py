@@ -618,6 +618,7 @@ class importer(object):
                             try:
                                 mo = (
                                     mfg_order.with_company(self.company)
+                                    .sudo()
                                     .with_context(context)
                                     .search([("name", "=", elem.get("reference"))])
                                 )
@@ -643,7 +644,7 @@ class importer(object):
                                     wo.state == "progress" for wo in mo.workorder_ids
                                 ):
                                     arg_dict.pop("date_planned_start", None)
-                                mo.write(arg_dict)
+                                mo.sudo().write(arg_dict)
                                 mo_references[elem.get("reference")] = mo
 
                         # Process the workorder information we received
