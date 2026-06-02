@@ -73,20 +73,6 @@ class importer(object):
 
     def run(self):
         msg = []
-
-        context = (
-            dict(self.env["res.users"].with_user(self.actual_user).context_get())
-            if self.actual_user
-            else dict(self.env.context)
-        )
-        context.update(
-            {
-                "allowed_company_ids": [self.company.id],
-                "force_company": self.company.id,
-                "company_id": self.company.id,
-            }
-        )
-
         if self.actual_user:
             product_product = self.env["product.product"].with_user(self.actual_user)
             product_supplierinfo = self.env["product.supplierinfo"].with_user(
@@ -95,24 +81,9 @@ class importer(object):
             uom_uom = self.env["uom.uom"].with_user(self.actual_user)
             proc_order = self.env["purchase.order"].with_user(self.actual_user)
             proc_orderline = self.env["purchase.order.line"].with_user(self.actual_user)
-            mfg_order = (
-                self.env["mrp.production"]
-                .with_user(self.actual_user)
-                .with_company(self.company)
-                .with_context(context)
-            )
-            mfg_workorder = (
-                self.env["mrp.workorder"]
-                .with_user(self.actual_user)
-                .with_company(self.company)
-                .with_context(context)
-            )
-            mfg_workcenter = (
-                self.env["mrp.workcenter"]
-                .with_user(self.actual_user)
-                .with_company(self.company)
-                .with_context(context)
-            )
+            mfg_order = self.env["mrp.production"].with_user(self.actual_user)
+            mfg_workorder = self.env["mrp.workorder"].with_user(self.actual_user)
+            mfg_workcenter = self.env["mrp.workcenter"].with_user(self.actual_user)
             mfg_workorder_secondary = self.env[
                 "mrp.workorder.secondary.workcenter"
             ].with_user(self.actual_user)
@@ -123,11 +94,8 @@ class importer(object):
             stck_move = self.env["stock.move"].with_user(self.actual_user)
             stck_warehouse = self.env["stock.warehouse"].with_user(self.actual_user)
             stck_location = self.env["stock.location"].with_user(self.actual_user)
-            change_product_qty = (
-                self.env["change.production.qty"]
-                .with_user(self.actual_user)
-                .with_company(self.company)
-                .with_context(context)
+            change_product_qty = self.env["change.production.qty"].with_user(
+                self.actual_user
             )
         else:
             product_product = self.env["product.product"]
@@ -135,32 +103,16 @@ class importer(object):
             uom_uom = self.env["uom.uom"]
             proc_order = self.env["purchase.order"]
             proc_orderline = self.env["purchase.order.line"]
-            mfg_order = (
-                self.env["mrp.production"]
-                .with_company(self.company)
-                .with_context(context)
-            )
-            mfg_workorder = (
-                self.env["mrp.workorder"]
-                .with_company(self.company)
-                .with_context(context)
-            )
-            mfg_workcenter = (
-                self.env["mrp.workcenter"]
-                .with_company(self.company)
-                .with_context(context)
-            )
+            mfg_order = self.env["mrp.production"]
+            mfg_workorder = self.env["mrp.workorder"]
+            mfg_workcenter = self.env["mrp.workcenter"]
             mfg_workorder_secondary = self.env["mrp.workorder.secondary.workcenter"]
             stck_picking_type = self.env["stock.picking.type"]
             stck_picking = self.env["stock.picking"]
             stck_move = self.env["stock.move"]
             stck_warehouse = self.env["stock.warehouse"]
             stck_location = self.env["stock.location"]
-            change_product_qty = (
-                self.env["change.production.qty"]
-                .with_company(self.company)
-                .with_context(context)
-            )
+            change_product_qty = self.env["change.production.qty"]
         if self.mode == 1:
             # Cancel previous draft purchase quotations
             m = self.env["purchase.order"]
@@ -203,6 +155,12 @@ class importer(object):
 
         # Workcenters of a workorder to update
         resources = []
+
+        context = (
+            dict(self.env["res.users"].with_user(self.actual_user).context_get())
+            if self.actual_user
+            else dict(self.env.context)
+        )
 
         for event, elem in iterparse(self.datafile, events=("start", "end")):
             if (
@@ -540,12 +498,8 @@ class importer(object):
                             mo = mo_references[elem.get("owner")]
                         else:
                             # Existing MO
-                            mo = mfg_order.search(
-                                [
-                                    ("name", "=", elem.get("owner")),
-                                    ("company_id", "=", self.company.id),
-                                ],
-                                limit=1,
+                            mo = mfg_order.with_company(self.company).search(
+                                [("name", "=", elem.get("owner"))]
                             )
                         if mo:
                             wo_list = mfg_workorder.search(
@@ -607,11 +561,6 @@ class importer(object):
                                                     # Change secondary work center
                                                     sec.write({"workcenter_id": res.id})
                                                     break
-                                    wo = (
-                                        mfg_workorder.with_company(self.company)
-                                        .with_context(context)
-                                        .browse(wo.id)
-                                    )
                                     wo.write(data)
                                     break
                     else:
@@ -670,13 +619,7 @@ class importer(object):
                                 mo = (
                                     mfg_order.with_company(self.company)
                                     .with_context(context)
-                                    .search(
-                                        [
-                                            ("name", "=", elem.get("reference")),
-                                            ("company_id", "=", self.company.id),
-                                        ],
-                                        limit=1,
-                                    )
+                                    .search([("name", "=", elem.get("reference"))])
                                 )
                             except Exception:
                                 continue
@@ -726,13 +669,13 @@ class importer(object):
                                             startUpdated = True
                                             wo.date_planned_start = rec["start"]
                                             if not create:
-                                                wo.write(
+                                                wo.sudo().write(
                                                     {
                                                         "date_planned_start": wo.date_planned_start
                                                     }
                                                 )
                                         if "end" in rec:
-                                            wo.date_planned_finished = rec["end"]
+                                            wo.sudo().date_planned_finished = rec["end"]
                                             if not create:
                                                 wo.write(
                                                     {
@@ -742,7 +685,7 @@ class importer(object):
                                         if not startUpdated and "start" in rec:
                                             wo.date_planned_start = rec["start"]
                                             if not create:
-                                                wo.write(
+                                                wo.sudo().write(
                                                     {
                                                         "date_planned_start": wo.date_planned_start
                                                     }
