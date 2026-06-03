@@ -2669,8 +2669,13 @@ class exporter(object):
                 # enddate = self.formatDateTime(i.date_planned_finished)
             except Exception:
                 continue
+
+            qty_done = 0
+            for sml in i.finished_move_line_ids:
+                if sml.state == "done":
+                    qty_done += sml.qty_done
             qty = self.convert_qty_uom(
-                max(0, i.product_qty - (i.qty_producing or 0)),
+                max(0, i.product_qty - qty_done),
                 i.product_uom_id.id,
                 self.product_product[i.product_id.id]["template"],
             )
