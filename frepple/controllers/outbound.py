@@ -1966,6 +1966,7 @@ class exporter(object):
                 "so_sequence",
                 "part_type_id",
                 "qcp_id",
+                "price_subtotal",
             ],
         )
 
@@ -2158,6 +2159,7 @@ class exporter(object):
                     '<stringproperty name="qcp" value=%s/>'
                     '<stringproperty name="geo_unit" value=%s/>'
                     '<stringproperty name="part_type" value=%s/>'
+                    '<doubleproperty name="price_subtotal" value="%s"/>'
                     "</demand>\n"
                 ) % (
                     quoteattr(name),
@@ -2177,6 +2179,7 @@ class exporter(object):
                     quoteattr(i["qcp_id"][1] if i["qcp_id"] else ""),
                     quoteattr(j["geo_unit_id"][1] if j["geo_unit_id"] else ""),
                     quoteattr(i["part_type_id"][1] if i["part_type_id"] else ""),
+                    (i["price_subtotal"] or 0),
                 )
         yield "</demands>\n"
 
