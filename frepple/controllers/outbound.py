@@ -2199,9 +2199,12 @@ class exporter(object):
                     quoteattr(j["geo_unit_id"][1] if j["geo_unit_id"] else ""),
                     quoteattr(i["part_type_id"][1] if i["part_type_id"] else ""),
                     quoteattr(
-                        type_of_po.get(j["customer_po_number_id"][0], "")
-                        if j["customer_po_number_id"]
-                        else ""
+                        (
+                            type_of_po.get(j["customer_po_number_id"][0], "")
+                            if j["customer_po_number_id"]
+                            else ""
+                        )
+                        or ""
                     ),
                     (i["price_subtotal"] or 0),
                 )
