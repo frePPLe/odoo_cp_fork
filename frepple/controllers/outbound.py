@@ -1984,6 +1984,24 @@ class exporter(object):
                     "picking_policy",
                     "warehouse_id",
                     "geo_unit_id",
+                    "customer_po_number_id",
+                ],
+            )
+        }
+
+        # Get all the gold sales orders
+
+        type_of_po = {
+            i["id"]: i["type_of_po"]
+            for i in self.generator.getData(
+                "customer.po",
+                ids=[
+                    so[i]["customer_po_number_id"][0]
+                    for i in so
+                    if so[i]["customer_po_number_id"]
+                ],
+                fields=[
+                    "type_of_po",
                 ],
             )
         }
@@ -2159,6 +2177,7 @@ class exporter(object):
                     '<stringproperty name="qcp" value=%s/>'
                     '<stringproperty name="geo_unit" value=%s/>'
                     '<stringproperty name="part_type" value=%s/>'
+                    '<stringproperty name="po_type" value=%s/>'
                     '<doubleproperty name="price_subtotal" value="%s"/>'
                     "</demand>\n"
                 ) % (
@@ -2179,6 +2198,11 @@ class exporter(object):
                     quoteattr(i["qcp_id"][1] if i["qcp_id"] else ""),
                     quoteattr(j["geo_unit_id"][1] if j["geo_unit_id"] else ""),
                     quoteattr(i["part_type_id"][1] if i["part_type_id"] else ""),
+                    quoteattr(
+                        type_of_po.get(j["customer_po_number_id"][0], "")
+                        if j["customer_po_number_id"]
+                        else ""
+                    ),
                     (i["price_subtotal"] or 0),
                 )
         yield "</demands>\n"
