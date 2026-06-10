@@ -1967,6 +1967,7 @@ class exporter(object):
                 "part_type_id",
                 "qcp_id",
                 "price_subtotal",
+                "price_unit",
             ],
         )
 
@@ -2179,6 +2180,7 @@ class exporter(object):
                     '<stringproperty name="part_type" value=%s/>'
                     '<stringproperty name="po_type" value=%s/>'
                     '<doubleproperty name="price_subtotal" value="%s"/>'
+                    '<doubleproperty name="price_unit" value="%s"/>'
                     "</demand>\n"
                 ) % (
                     quoteattr(name),
@@ -2207,6 +2209,7 @@ class exporter(object):
                         or ""
                     ),
                     (i["price_subtotal"] or 0),
+                    (i["price_unit"] or 0),
                 )
         yield "</demands>\n"
 
