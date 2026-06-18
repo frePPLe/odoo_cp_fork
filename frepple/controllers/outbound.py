@@ -3454,17 +3454,23 @@ class exporter(object):
         for i in data:
             item = self.product_product.get(i[0], None)
             location = self.map_locations.get(i[1], None)
+            batch = i[2] or ""
             if item and location:
-                inventory[(item["name"], location)] = (
-                    inventory.get((item["name"], location), 0)
-                    + i[2]
-                    - (i[3] if self.respect_reservations else 0)
+                inventory[(item["name"], location, batch)] = (
+                    inventory.get((item["name"], location, batch), 0)
+                    + i[3]
+                    - (i[4] if self.respect_reservations else 0)
                 )
         for key, val in inventory.items():
-            buf = "%s @ %s" % (key[0], key[1])
-            yield '<buffer name=%s onhand="%f"><item name=%s/><location name=%s/></buffer>\n' % (
+            buf = (
+                "%s @ %s" % (key[0], key[1])
+                if len(key[2]) > 0
+                else "%s @ %s @ %s" % (key[0], key[1], key[2])
+            )
+            yield '<buffer name=%s onhand="%f"%s><item name=%s/><location name=%s/></buffer>\n' % (
                 quoteattr(buf),
                 val - self.reserved_products.get(key[0], 0),
+                (" batch=%s" % quoteattr(batch)) if len(batch) > 0 else "",
                 quoteattr(key[0]),
                 quoteattr(key[1]),
             )
