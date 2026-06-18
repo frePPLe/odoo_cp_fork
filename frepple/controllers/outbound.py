@@ -3431,7 +3431,7 @@ class exporter(object):
                 "AND stock_location.scrap_location is distinct from true "
                 "AND stock_location.return_location is distinct from true "
                 "AND stock_location.usage = 'internal' "
-                "GROUP BY stock_quant.product_id, stock_quant.location_id, substring(stock_lot.name FROM '_([^-]+-\d+)') "
+                "GROUP BY stock_quant.product_id, stock_quant.location_id, substring(stock_lot.name FROM '[_/]([^-]+-\d+)') "
                 "ORDER BY stock_quant.location_id ASC"
             )
             data = self.generator.env.cr.fetchall()
