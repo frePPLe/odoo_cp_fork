@@ -3422,7 +3422,7 @@ class exporter(object):
         if isinstance(self.generator, Odoo_generator):
             # SQL query gives much better performance
             self.generator.env.cr.execute(
-                "SELECT stock_quant.product_id, stock_quant.location_id, substring(stock_lot.name FROM '_([^-]+-\d+)') as batch,"
+                "SELECT stock_quant.product_id, stock_quant.location_id, substring(stock_lot.name FROM '[_/]([^-]+-\d+)') as batch,"
                 "sum(stock_quant.quantity), sum(stock_quant.reserved_quantity) "
                 "FROM stock_quant "
                 "INNER JOIN stock_location ON stock_quant.location_id = stock_location.id "
@@ -3464,7 +3464,7 @@ class exporter(object):
         for key, val in inventory.items():
             buf = (
                 "%s @ %s" % (key[0], key[1])
-                if len(key[2]) > 0
+                if len(key[2]) == 0
                 else "%s @ %s @ %s" % (key[0], key[1], key[2])
             )
             yield '<buffer name=%s onhand="%f"%s><item name=%s/><location name=%s/></buffer>\n' % (
