@@ -3422,7 +3422,7 @@ class exporter(object):
         if isinstance(self.generator, Odoo_generator):
             # SQL query gives much better performance
             self.generator.env.cr.execute(
-                "SELECT stock_quant.product_id, stock_quant.location_id, substring(stock_lot.name FROM '_([^-]+-\d+)') as batch"
+                "SELECT stock_quant.product_id, stock_quant.location_id, substring(stock_lot.name FROM '_([^-]+-\d+)') as batch,"
                 "sum(stock_quant.quantity), sum(stock_quant.reserved_quantity) "
                 "FROM stock_quant "
                 "INNER JOIN stock_location ON stock_quant.location_id = stock_location.id "
