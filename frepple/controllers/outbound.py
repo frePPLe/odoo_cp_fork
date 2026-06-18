@@ -3470,7 +3470,7 @@ class exporter(object):
             yield '<buffer name=%s onhand="%f"%s><item name=%s/><location name=%s/></buffer>\n' % (
                 quoteattr(buf),
                 val - self.reserved_products.get(key[0], 0),
-                (" batch=%s" % quoteattr(batch)) if len(batch) > 0 else "",
+                (" batch=%s" % quoteattr(key[2])) if len(key[2]) > 0 else "",
                 quoteattr(key[0]),
                 quoteattr(key[1]),
             )
