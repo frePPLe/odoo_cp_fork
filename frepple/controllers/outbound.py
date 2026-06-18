@@ -3465,7 +3465,7 @@ class exporter(object):
             buf = (
                 "%s @ %s" % (key[0], key[1])
                 if len(key[2]) == 0
-                else "%s @ %s @ %s" % (key[0], key[1], key[2])
+                else "%s @ %s @ %s" % (key[0], key[2], key[1])
             )
             yield '<buffer name=%s onhand="%f"%s><item name=%s/><location name=%s/></buffer>\n' % (
                 quoteattr(buf),
