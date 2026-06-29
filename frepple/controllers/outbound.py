@@ -3422,14 +3422,16 @@ class exporter(object):
         if isinstance(self.generator, Odoo_generator):
             # SQL query gives much better performance
             self.generator.env.cr.execute(
-                "SELECT product_id, stock_quant.location_id, sum(quantity), sum(reserved_quantity) "
+                "SELECT stock_quant.product_id, stock_quant.location_id, regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1') as batch,"
+                "sum(stock_quant.quantity), sum(stock_quant.reserved_quantity) "
                 "FROM stock_quant "
                 "INNER JOIN stock_location ON stock_quant.location_id = stock_location.id "
-                "WHERE quantity > 0 "
+                "left outer JOIN stock_lot ON stock_quant.lot_id = stock_lot.id "
+                "WHERE stock_quant.quantity > 0 "
                 "AND stock_location.scrap_location is distinct from true "
                 "AND stock_location.return_location is distinct from true "
                 "AND stock_location.usage = 'internal' "
-                "GROUP BY product_id, stock_quant.location_id "
+                "GROUP BY stock_quant.product_id, stock_quant.location_id, regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1') "
                 "ORDER BY stock_quant.location_id ASC"
             )
             data = self.generator.env.cr.fetchall()
@@ -3452,17 +3454,23 @@ class exporter(object):
         for i in data:
             item = self.product_product.get(i[0], None)
             location = self.map_locations.get(i[1], None)
+            batch = i[2] or ""
             if item and location:
-                inventory[(item["name"], location)] = (
-                    inventory.get((item["name"], location), 0)
-                    + i[2]
-                    - (i[3] if self.respect_reservations else 0)
+                inventory[(item["name"], location, batch)] = (
+                    inventory.get((item["name"], location, batch), 0)
+                    + i[3]
+                    - (i[4] if self.respect_reservations else 0)
                 )
         for key, val in inventory.items():
-            buf = "%s @ %s" % (key[0], key[1])
-            yield '<buffer name=%s onhand="%f"><item name=%s/><location name=%s/></buffer>\n' % (
+            buf = (
+                "%s @ %s" % (key[0], key[1])
+                if len(key[2]) == 0
+                else "%s @ %s @ %s" % (key[0], key[2], key[1])
+            )
+            yield '<buffer name=%s onhand="%f">%s<item name=%s/><location name=%s/></buffer>\n' % (
                 quoteattr(buf),
                 val - self.reserved_products.get(key[0], 0),
+                ("<batch>%s</batch>" % key[2]) if len(key[2]) > 0 else "",
                 quoteattr(key[0]),
                 quoteattr(key[1]),
             )
