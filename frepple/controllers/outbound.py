@@ -2974,7 +2974,10 @@ class exporter(object):
                                                     l.reserved_uom_qty,
                                                     mv.product_id.uom_id,
                                                 )
-                                                for l in mv.move_line_ids
+                                                for l in (
+                                                    mv.move_line_ids
+                                                    | mv.move_orig_ids.move_line_ids
+                                                )
                                                 if l.state == "assigned"
                                             ]
                                         )
