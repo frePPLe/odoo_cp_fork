@@ -3421,19 +3421,32 @@ class exporter(object):
         yield "<buffers>\n"
         if isinstance(self.generator, Odoo_generator):
             # SQL query gives much better performance
-            self.generator.env.cr.execute(
-                "SELECT stock_quant.product_id, stock_quant.location_id, regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1') as batch,"
-                "sum(stock_quant.quantity), sum(stock_quant.reserved_quantity) "
-                "FROM stock_quant "
-                "INNER JOIN stock_location ON stock_quant.location_id = stock_location.id "
-                "left outer JOIN stock_lot ON stock_quant.lot_id = stock_lot.id "
-                "WHERE stock_quant.quantity > 0 "
-                "AND stock_location.scrap_location is distinct from true "
-                "AND stock_location.return_location is distinct from true "
-                "AND stock_location.usage = 'internal' "
-                "GROUP BY stock_quant.product_id, stock_quant.location_id, regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1') "
-                "ORDER BY stock_quant.location_id ASC"
-            )
+            self.generator.env.cr.execute("""
+                SELECT stock_quant.product_id, stock_quant.location_id, regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1') as batch,
+                sum(stock_quant.quantity), sum(stock_quant.reserved_quantity)
+                FROM stock_quant
+                INNER JOIN stock_location ON stock_quant.location_id = stock_location.id
+                left outer JOIN stock_lot ON stock_quant.lot_id = stock_lot.id
+                WHERE stock_quant.quantity > 0
+                AND stock_location.scrap_location is distinct from true
+                AND stock_location.return_location is distinct from true
+                AND stock_location.usage = 'internal'
+                AND exists (select 1 from sale_order_line where product_id = stock_quant.product_id)
+                GROUP BY stock_quant.product_id, stock_quant.location_id, regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1')
+                UNION ALL
+                SELECT stock_quant.product_id, stock_quant.location_id, '' as batch,
+                sum(stock_quant.quantity), sum(stock_quant.reserved_quantity)
+                FROM stock_quant
+                INNER JOIN stock_location ON stock_quant.location_id = stock_location.id
+                left outer JOIN stock_lot ON stock_quant.lot_id = stock_lot.id
+                WHERE stock_quant.quantity > 0
+                AND stock_location.scrap_location is distinct from true
+                AND stock_location.return_location is distinct from true
+                AND stock_location.usage = 'internal'
+                AND not exists (select 1 from sale_order_line where product_id = stock_quant.product_id)
+                GROUP BY stock_quant.product_id, stock_quant.location_id
+                ORDER BY 2 ASC
+                """)
             data = self.generator.env.cr.fetchall()
         else:
             data = [
