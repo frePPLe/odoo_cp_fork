@@ -2963,24 +2963,28 @@ class exporter(object):
                             )
                             qty_flow = 0
                         else:
-                            default_uom = mv.product_id.uom_id
-                            qty_flow = mv.product_uom._compute_quantity(
-                                mv.product_uom_qty, default_uom
-                            )
-                            for l in mv.move_line_ids:
-                                if l.state == "done":
-                                    qty_flow -= l.product_uom_id._compute_quantity(
-                                        l.quantity, default_uom
-                                    )
-                            if self.respect_reservations:
-                                for l in (
-                                    mv.move_line_ids | mv.move_orig_ids.move_line_ids
-                                ):
-                                    if l.state == "assigned" and l.move_id.picking_id:
-                                        qty_flow -= l.product_uom_id._compute_quantity(
-                                            l.quantity, default_uom
+                            qty_flow = self.convert_qty_uom(
+                                max(
+                                    0,
+                                    mv.product_uom_qty
+                                    - (
+                                        sum(
+                                            [
+                                                l.product_uom_id._compute_quantity(
+                                                    l.reserved_uom_qty,
+                                                    mv.product_id.uom_id,
+                                                )
+                                                for l in mv.move_line_ids
+                                                if l.state == "assigned"
+                                            ]
                                         )
-
+                                        if self.respect_reservations
+                                        else 0
+                                    ),
+                                ),
+                                mv.product_uom.id,
+                                item["template"],
+                            )
                         if qty_flow > 0:
                             operation_materials[item["name"]] = operation_materials.get(
                                 item["name"], 0
