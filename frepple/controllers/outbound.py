@@ -2913,6 +2913,16 @@ class exporter(object):
                     # dictionary needed as BOM in Odoo might have multiple lines with the same product
                     operation_materials = {}
                     routes = {}
+
+                    if i.name == "A08968-3A/3":
+                        import xml.etree.ElementTree as ET
+
+                        debug_comment = ET.Comment(
+                            f" DEBUG LIST: {[(mv.product_id.name, mv.reserved_availability, mv.picking_id.name if mv.picking_id else "")]} "
+                        )
+
+                        yield ET.tostring(debug_comment, encoding="unicode")
+
                     for mv in mv_list:
                         item = self.product_product.get(mv.product_id.id, None)
                         if not item:
