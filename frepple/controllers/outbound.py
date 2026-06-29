@@ -2978,7 +2978,7 @@ class exporter(object):
                                                     mv.move_line_ids
                                                     | mv.move_orig_ids.move_line_ids
                                                 )
-                                                # if l.state == "assigned"
+                                                if l.state == "assigned"
                                             ]
                                         )
                                         if self.respect_reservations
