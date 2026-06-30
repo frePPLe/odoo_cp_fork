@@ -1928,7 +1928,7 @@ class exporter(object):
                 ("product_id", "!=", False),
                 ("order_id.invoice_status", "!=", "invoiced"),
                 ("order_id.state", "=", "sale"),
-                ("delivery_status", "!=", "full"),
+                ("order_id.delivery_status", "!=", "full"),
                 (
                     "order_id.company_id",
                     "=",
@@ -1947,7 +1947,7 @@ class exporter(object):
                     datetime.now() - timedelta(days=self.delta),
                 ),
                 ("order_id.state", "=", "sale"),
-                ("delivery_status", "!=", "full"),
+                ("order_id.delivery_status", "!=", "full"),
                 ("order_id.company_id", "=", self.company_id),
                 # ("order_id.name", "not like", "P%"),
             ]
