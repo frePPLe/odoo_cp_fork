@@ -2454,14 +2454,15 @@ class exporter(object):
                                     self.linked_mo[mo].get(item["name"], 0)
                                     + linked_mos[i["id"]][mo]
                                 )
-
-                                yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                                tmpl = self.product_templates[item["template"]]
+                                yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s uom=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                     quoteattr(f"{po_line_reference} for {mo}"),
                                     "batch=%s " % quoteattr(batch) if batch else "",
                                     start,
                                     end,
                                     linked_mos[i["id"]][mo],
                                     quoteattr(f"{item['name']} (reserved)"),
+                                    quoteattr(tmpl["uom_id"][1] if tmpl else ""),
                                     quoteattr(location),
                                     quoteattr(supplier),
                                 )
@@ -2556,14 +2557,15 @@ class exporter(object):
                                 self.linked_mo[mo].get(item["name"], 0)
                                 + linked_mos[i["id"]][mo]
                             )
-
-                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                            tmpl = self.product_templates[item["template"]]
+                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s uom=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
                                 quoteattr("%s - %s for %s" % (j.name, i.id, mo)),
                                 "batch=%s " % quoteattr(batch) if batch else "",
                                 start,
                                 end,
                                 linked_mos[i["id"]][mo],
                                 quoteattr(f"{item['name']} (reserved)"),
+                                quoteattr(tmpl["uom_id"][1] if tmpl else ""),
                                 quoteattr(location),
                                 quoteattr(supplier),
                             )
@@ -3011,9 +3013,11 @@ class exporter(object):
                         else:
                             # allocated
                             # one record with the allocated quantity
-                            yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
+                            tmpl = self.product_templates[i["template"]]
+                            yield '<flow quantity="%s"><item name=%s uom=%s/>%s</flow>\n' % (
                                 -self.linked_mo.get(i["name"]).get(key) / qty,
                                 quoteattr(f"{key} (reserved)"),
+                                quoteattr(tmpl["uom_id"][1] if tmpl else ""),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
                                     if routes.get(key)
