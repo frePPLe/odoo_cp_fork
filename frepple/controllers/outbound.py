@@ -2917,10 +2917,14 @@ class exporter(object):
                     # dictionary needed as BOM in Odoo might have multiple lines with the same product
                     operation_materials = {}
                     routes = {}
+                    uom = {}
                     for mv in mv_list:
                         item = self.product_product.get(mv.product_id.id, None)
                         if not item:
                             continue
+
+                        tmpl = self.product_templates[item["template"]]
+                        uom[item["name"]] = tmpl["uom_id"][1]
 
                         # Skip moves of other WOs
                         # When the odoo bill of material doesn't specify the operation
@@ -3013,11 +3017,10 @@ class exporter(object):
                         else:
                             # allocated
                             # one record with the allocated quantity
-                            tmpl = self.product_templates[i["template"]]
                             yield '<flow quantity="%s"><item name=%s uom=%s/>%s</flow>\n' % (
                                 -self.linked_mo.get(i["name"]).get(key) / qty,
                                 quoteattr(f"{key} (reserved)"),
-                                quoteattr(tmpl["uom_id"][1] if tmpl else ""),
+                                quoteattr(uom.get(key) or ""),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
                                     if routes.get(key)
