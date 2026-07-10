@@ -3443,7 +3443,9 @@ class exporter(object):
         if isinstance(self.generator, Odoo_generator):
             # SQL query gives much better performance
             self.generator.env.cr.execute("""
-                SELECT stock_quant.product_id, stock_quant.location_id, regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1') as batch,
+                SELECT stock_quant.product_id, stock_quant.location_id,
+                case when length(stock_lot.name) > 0 then regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1')
+                else '' end as batch,
                 sum(stock_quant.quantity), sum(stock_quant.reserved_quantity)
                 FROM stock_quant
                 INNER JOIN stock_location ON stock_quant.location_id = stock_location.id
@@ -3452,7 +3454,9 @@ class exporter(object):
                 AND stock_location.scrap_location is distinct from true
                 AND stock_location.return_location is distinct from true
                 AND stock_location.usage = 'internal'
-                GROUP BY stock_quant.product_id, stock_quant.location_id, regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1')
+                GROUP BY stock_quant.product_id, stock_quant.location_id,
+                case when length(stock_lot.name) > 0 then regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1')
+                else '' end
                 """)
             data = self.generator.env.cr.fetchall()
         else:
