@@ -3452,7 +3452,7 @@ class exporter(object):
                 AND stock_location.scrap_location is distinct from true
                 AND stock_location.return_location is distinct from true
                 AND stock_location.usage = 'internal'
-                ORDER BY 2 ASC
+                GROUP BY stock_quant.product_id, stock_quant.location_id, regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1')
                 """)
             data = self.generator.env.cr.fetchall()
         else:
