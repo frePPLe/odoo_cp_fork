@@ -3442,7 +3442,7 @@ class exporter(object):
         yield "<buffers>\n"
 
         # SQL query gives much better performance
-        self.generator.env.cr.execute("""
+        self.generator.env.cr.execute(r"""
             SELECT stock_quant.product_id, stock_quant.location_id,
             case when length(stock_lot.name) > 0 then regexp_replace(stock_lot.name, '^[^_]*_(.*)_[^_]*$', '\1')
             else '' end as batch,
