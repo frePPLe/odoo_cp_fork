@@ -3461,6 +3461,7 @@ class exporter(object):
         data = self.generator.env.cr.fetchall()
 
         inventory = {}
+
         for i in data:
             item = self.product_product.get(i[0], None)
             location = self.map_locations.get(i[1], None)
@@ -3475,7 +3476,12 @@ class exporter(object):
                     + i[3]
                     - (i[4] if self.respect_reservations else 0)
                 )
+
+        # A first loop for the records where the batch is empty
+        # we are sending buffers in xml
         for key, val in inventory.items():
+            if key[2]:
+                continue
             buf = (
                 "%s @ %s" % (key[0], key[1])
                 if len(key[2]) == 0
@@ -3483,12 +3489,41 @@ class exporter(object):
             )
             yield '<buffer name=%s onhand="%f">%s<item name=%s/><location name=%s/></buffer>\n' % (
                 quoteattr(buf),
-                val - self.reserved_products.get(key[0], 0),
+                val,
                 ("<batch>%s</batch>" % key[2]) if len(key[2]) > 0 else "",
                 quoteattr(key[0]),
                 quoteattr(key[1]),
             )
         yield "</buffers>\n"
+
+        # A second loop for the records with a batch
+        yield "<operationplans>"
+
+        for key, val in inventory.items():
+            if not key[2]:
+                continue
+            buf = (
+                "%s @ %s" % (key[0], key[1])
+                if len(key[2]) == 0
+                else "%s @ %s @ %s" % (key[0], key[2], key[1])
+            )
+            yield f"""
+            <operationplan>
+			<reference>{buf}</reference>
+			<operation xsi:type="operation_inventory">
+				<name>Inventory {key[0]} @ {key[1]}</name>
+			</operation>
+			<start>{datetime.now().strftime("%Y-%m-%dT00:00:00")}</start>
+			<end>{datetime.now().strftime("%Y-%m-%dT00:00:00")}</end>
+			<quantity>{val}</quantity>
+			<batch>{key[2]}</batch>
+			<status>closed</status>
+			<ordertype>STCK</ordertype>
+			<item name={quoteattr(key[0])}/>
+			<location name={quoteattr(key[1])}/>
+		    </operationplan>
+            """
+        yield "</operationplans>\n"
 
 
 if __name__ == "__main__":
