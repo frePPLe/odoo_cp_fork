@@ -3512,7 +3512,7 @@ class exporter(object):
             quantity="{val}" status="confirmed">
             <item name={quoteattr(key[0])}/>
             <location name={quoteattr(key[1])}/>
-            <batch>{batch}</batch>
+            <batch>{key[2]}</batch>
             </operationplan>
             """
         yield "</operationplans>\n"
