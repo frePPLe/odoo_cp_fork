@@ -3519,7 +3519,9 @@ class exporter(object):
 			<batch>{key[2]}</batch>
 			<status>closed</status>
 			<ordertype>STCK</ordertype>
-			<item name={quoteattr(key[0])}/>
+			<item xsi:type="item_mto">
+				<name>{key[0]}</name>
+			</item>
 			<location name={quoteattr(key[1])}/>
 		    </operationplan>
             """
