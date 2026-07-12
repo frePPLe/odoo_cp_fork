@@ -3508,79 +3508,11 @@ class exporter(object):
                 else "%s @ %s @ %s" % (key[0], key[2], key[1])
             )
             yield f"""
-            <operationplan>
-			<reference>{buf}</reference>
-			<operation xsi:type="operation_inventory">
-				<name>Inventory {key[0]} @ {key[1]}</name>
-			</operation>
-			<start>{datetime.now().strftime("%Y-%m-%dT00:00:00")}</start>
-			<end>{datetime.now().strftime("%Y-%m-%dT00:00:00")}</end>
-			<quantity>{val}</quantity>
-			<batch>{key[2]}</batch>
-			<status>closed</status>
-			<ordertype>STCK</ordertype>
-			<item xsi:type="item_mto">
-				<name>{key[0]}</name>
-			</item>
-			<location name={quoteattr(key[1])}/>
-		    </operationplan>
+            <operationplan ordertype="DO" end="{datetime.now().strftime("%Y-%m-%dT00:00:00")}"
+            quantity="{val}" status="confirmed">
+            <item name={quoteattr(key[0])}/>
+            <location name={quoteattr(key[1])}/>
+            <batch>{batch}</batch>
+            </operationplan>
             """
         yield "</operationplans>\n"
-
-
-if __name__ == "__main__":
-    #
-    # When calling this script directly as a Python file, the connector uses XMLRPC
-    # to connect to odoo and download all data.
-    #
-    # This is useful for debugging connector updates remotely, when you don't have
-    # direct access to the odoo server itself.
-    # This mode of working is not recommended for production use because of performance
-    # considerations.
-    #
-    # DEPRECATED EXPERIMENTAL FEATURE!!!
-    # This feature was always experimental, and we now see it as a dead end.
-    #
-    import argparse
-    from warnings import warn
-
-    warn("The XMLRPC odoo connector is deprecated", DeprecationWarning)
-
-    parser = argparse.ArgumentParser(description="Debug frepple odoo connector")
-    parser.add_argument(
-        "--url", help="URL of the odoo server", default="http://localhost:8069"
-    )
-    parser.add_argument("--db", help="Odoo database to connect to", default="odoo14")
-    parser.add_argument(
-        "--username", help="User name for the odoo connection", default="admin"
-    )
-    parser.add_argument(
-        "--password", help="User password for the odoo connection", default="admin"
-    )
-    parser.add_argument(
-        "--company", help="Odoo company to use", default="My Company (Chicago)"
-    )
-    parser.add_argument(
-        "--timezone", help="Time zone to convert odoo datetime fields to", default="UTC"
-    )
-    parser.add_argument(
-        "--singlecompany",
-        default=False,
-        help="Limit the data to a single company only.",
-        action="store_true",
-    )
-    args = parser.parse_args()
-
-    generator = XMLRPC_generator(args.url, args.db, args.username, args.password)
-    xp = exporter(
-        generator,
-        None,
-        uid=generator.uid,
-        database=generator.db,
-        company=args.company,
-        mode=1,
-        timezone=args.timezone,
-        singlecompany=True,
-    )
-    for i in xp.run():
-        print(i, end="")
