@@ -3465,6 +3465,10 @@ class exporter(object):
             item = self.product_product.get(i[0], None)
             location = self.map_locations.get(i[1], None)
             batch = i[2] or ""
+            if batch:
+                match = re.match(r"^[^-]*-[\d]*", batch)
+                if match:
+                    batch = match.group(0)
             if item and location:
                 inventory[(item["name"], location, batch)] = (
                     inventory.get((item["name"], location, batch), 0)
