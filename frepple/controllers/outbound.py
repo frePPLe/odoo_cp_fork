@@ -3508,7 +3508,7 @@ class exporter(object):
                 else "%s @ %s @ %s" % (key[0], key[2], key[1])
             )
             yield f"""
-            <operationplan ordertype="DO" end="{datetime.now().strftime("%Y-%m-%dT00:00:00")}"
+            <operationplan ordertype="DO" end="1971-01-01T00:00:00"
             quantity="{val}" status="confirmed">
             <item name={quoteattr(key[0])}/>
             <location name={quoteattr(key[1])}/>
