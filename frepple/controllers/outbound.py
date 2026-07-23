@@ -2608,6 +2608,7 @@ class exporter(object):
         # purchase.order.line has an additional field date_planned to figure out when the subcontractor returns the product
         workorder_dates = {}
         workorder_vendor = {}
+        workorder_po = {}
 
         for i in self.generator.getData(
             "outsource.po.reference",
@@ -2627,6 +2628,7 @@ class exporter(object):
                     workorder_vendor[j.id] = self.map_customers[
                         i.purchase_id.partner_id.id
                     ]
+                    workorder_po[j.id] = i.purchase_id.name
                 date_planned = (
                     i.purchase_line_id.revised_line_date
                     or i.purchase_line_id.date_planned
@@ -3168,7 +3170,7 @@ class exporter(object):
                                 wo_date = ' start="%s"' % self.formatDateTime(dt)
                     except Exception:
                         wo_date = ""
-                    yield '<operationplan type="MO" reference=%s%s quantity="%s" status="%s"><operation name=%s/><owner reference=%s/>%s' % (
+                    yield '<operationplan type="MO" reference=%s%s quantity="%s" status="%s"><operation name=%s/><owner reference=%s/>%s%s' % (
                         quoteattr(self.clean_xml_string(wo.display_name)),
                         wo_date,
                         qty,
@@ -3181,6 +3183,14 @@ class exporter(object):
                                 % quoteattr(workorder_vendor[wo.id])
                             )
                             if workorder_vendor.get(wo.id)
+                            else ""
+                        ),
+                        (
+                            (
+                                '<stringproperty name="po_number" value=%s/>\n'
+                                % quoteattr(workorder_po[wo.id])
+                            )
+                            if workorder_po.get(wo.id)
                             else ""
                         ),
                     )
