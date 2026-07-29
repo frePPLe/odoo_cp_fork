@@ -2350,7 +2350,11 @@ class exporter(object):
                         or not mv.purchase_line_id
                         or not mv.location_dest_id
                         or mv.state in ("draft", "cancel", "done")
-                        or (mv.state == "done" and mv.picking_id.quality_check_todo)
+                        or (
+                            mv.state == "done"
+                            and mv.picking_id.quality_check_todo
+                            and mv.picking_id.state == "done"
+                        )
                     ):
                         continue
                     j = i.order_id
