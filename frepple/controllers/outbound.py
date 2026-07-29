@@ -2724,7 +2724,9 @@ class exporter(object):
             # CP: make sure the children MOs have the same batch as their parent
             # CP MOs are replenishment MOs based on reordering rules.
             if i.name.startswith("CP"):
-                batch = i.name
+                # If name has 3+ slashes, remove last segment (e.g., CPxxx/MO/00123/3 -> CPxxx/MO/00123)
+                parts = i.name.split('/')
+                batch = '/'.join(parts[:-1]) if len(parts) > 2 else i.name
             else:
                 match = re.match(r"^[^-]*-[\d]*", i.name)
 
