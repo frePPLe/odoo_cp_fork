@@ -2399,23 +2399,29 @@ class exporter(object):
                     # if the goods are in QC, they'll be available in 3 days from now
                     end = (
                         datetime.now() + timedelta(days=3)
-                        if ((mv.state == "done" and mv.picking_id.quality_check_todo))
+                        if (
+                            (
+                                mv.state == "done"
+                                and mv.picking_id.quality_check_todo
+                                and mv.picking_id.state != "done"
+                            )
+                        )
                         else (i.revised_line_date or mv.date)
                     )
                     if not isinstance(end, datetime):
                         end = datetime.fromisoformat(end)
                     start = self.formatDateTime(start if start < end else end)
                     end = self.formatDateTime(end)
-                    if not mv.picking_id.check_ids:
-                        qty_done = mv.quantity_done
-                    elif mv.picking_id.quality_check_todo:
-                        qty_done = 0
-                    elif mv.picking_id.quality_check_fail:
-                        qty_done = mv.quantity_done
-                    else:
-                        qty_done = mv.quantity_done
+                    # if not mv.picking_id.check_ids:
+                    #     qty_done = mv.quantity_done
+                    # elif mv.picking_id.quality_check_todo:
+                    #     qty_done = 0
+                    # elif mv.picking_id.quality_check_fail:
+                    #     qty_done = mv.quantity_done
+                    # else:
+                    #     qty_done = mv.quantity_done
 
-                    qty = mv.product_qty - qty_done
+                    qty = mv.product_qty  #  - qty_done
                     supplier = self.map_customers.get(j.partner_id.id)
                     if not supplier:
                         # supplier is archived :-(
