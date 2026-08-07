@@ -2872,7 +2872,8 @@ class exporter(object):
                     # Get remaining duration of the WO
                     time_left = (
                         0
-                        if wo.id not in longest_ids
+                        if False
+                        and wo.id not in longest_ids
                         and qty > 1
                         and (i.name.startswith("P") or i.name.startswith("Q"))
                         and wo.id not in outsourced_ids
@@ -3061,7 +3062,8 @@ class exporter(object):
                     yield "</flows>"
                     # The longest LT suboperation gets all the resources
                     if (
-                        qty > 1
+                        False
+                        and qty > 1
                         and (i.name.startswith("P") or i.name.startswith("Q"))
                         and wo.id in longest_ids
                         and wo.id in wc_blocks
@@ -3207,7 +3209,8 @@ class exporter(object):
                         ),
                     )
                     if (
-                        wo.id in longest_ids
+                        False
+                        and wo.id in longest_ids
                         and qty > 1
                         and (i.name.startswith("P") or i.name.startswith("Q"))
                         and wo.id not in outsourced_ids
