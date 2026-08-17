@@ -958,11 +958,6 @@ class exporter(object):
         first = True
         for i in self.generator.getData(
             "mrp.workcenter",
-            search=[
-                "|",
-                ("active", "=", True),
-                ("active", "=", False),
-            ],
             fields=[
                 "name",
                 "resource_id",
