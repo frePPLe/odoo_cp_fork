@@ -2401,7 +2401,7 @@ class exporter(object):
                                 and mv.picking_id.state != "done"
                             )
                         )
-                        else (i.revised_line_date or mv.date)
+                        else (i.revised_line_date or i.date_planned or mv.date)
                     )
                     if not isinstance(end, datetime):
                         end = datetime.fromisoformat(end)
