@@ -1419,6 +1419,7 @@ class exporter(object):
         # Loop over all bom records
         for i in self.generator.getData(
             "mrp.bom",
+            search=[("routing_category_id.name", "not like", "Rework%")],
             fields=[
                 "product_qty",
                 "product_uom_id",
