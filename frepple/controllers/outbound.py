@@ -992,7 +992,7 @@ class exporter(object):
                 )
             )
             self.map_workcenters[i["id"]] = name
-            yield '<resource name=%s maximum="%s" category="%s" subcategory="%s" efficiency="%s"><location name=%s/>%s%s%s</resource>\n' % (
+            yield '<resource name=%s maxearly="P999DT0H0M0S" maximum="%s" category="%s" subcategory="%s" efficiency="%s"><location name=%s/>%s%s%s</resource>\n' % (
                 quoteattr(name),
                 i["default_capacity"],
                 i["id"],
