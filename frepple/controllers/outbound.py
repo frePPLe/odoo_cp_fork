@@ -2664,6 +2664,12 @@ class exporter(object):
             object=True,
         ):
 
+            # Filter child MOs for which the parent is on hold
+            parent_mo_ids = i._get_sources().ids
+            if parent_mo_ids:
+                if len([i.state == "on_hold" for i in parent_mo_ids]):
+                    continue
+
             # Check if the parent MO is closed
             closeChildren = False
             if closeChildren and "/" in i.name and i.origin:
