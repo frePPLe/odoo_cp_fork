@@ -2665,7 +2665,7 @@ class exporter(object):
         ):
 
             # Filter child MOs for which the parent is on hold
-            parent_mo_ids = i._get_sources().ids
+            parent_mo_ids = i._get_sources()
             if parent_mo_ids:
                 if len([i.state == "on_hold" for i in parent_mo_ids]):
                     continue
