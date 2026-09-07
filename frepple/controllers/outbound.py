@@ -2671,6 +2671,7 @@ class exporter(object):
                     debug_comment = ET.Comment(
                         f" skipping MO {i.name} as parent is on hold {parent_mo_ids}"
                     )
+                    yield ET.tostring(debug_comment, encoding="unicode")
                     continue
 
             # Check if the parent MO is closed
