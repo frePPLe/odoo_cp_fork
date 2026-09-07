@@ -2642,7 +2642,7 @@ class exporter(object):
                 if date_planned:
                     workorder_dates[j.id] = date_planned
 
-        # import xml.etree.ElementTree as ET
+        import xml.etree.ElementTree as ET
 
         # debug_comment = ET.Comment(
         #     f" DEBUG DICT: {json.dumps({i:self.formatDateTime(workorder_dates[i]) for i in workorder_dates}, indent=2)} "
@@ -2668,6 +2668,9 @@ class exporter(object):
             parent_mo_ids = i._get_sources()
             if parent_mo_ids:
                 if len([i.state == "on_hold" for i in parent_mo_ids]):
+                    debug_comment = ET.Comment(
+                        f" skipping MO {i.name} as parent is on hold {parent_mo_ids}"
+                    )
                     continue
 
             # Check if the parent MO is closed
