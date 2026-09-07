@@ -2667,7 +2667,13 @@ class exporter(object):
             # Filter child MOs for which the parent is on hold
             parent_mo_ids = i._get_sources()
             if parent_mo_ids:
-                if len([i.state == "on_hold" for i in parent_mo_ids]):
+                if len(
+                    [
+                        parent.name
+                        for parent in parent_mo_ids
+                        if parent.state == "on_hold"
+                    ]
+                ):
                     debug_comment = ET.Comment(
                         f" skipping MO {i.name} as parent is on hold {parent_mo_ids}"
                     )
