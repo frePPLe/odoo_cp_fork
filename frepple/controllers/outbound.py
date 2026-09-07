@@ -2642,7 +2642,7 @@ class exporter(object):
                 if date_planned:
                     workorder_dates[j.id] = date_planned
 
-        import xml.etree.ElementTree as ET
+        # import xml.etree.ElementTree as ET
 
         # debug_comment = ET.Comment(
         #     f" DEBUG DICT: {json.dumps({i:self.formatDateTime(workorder_dates[i]) for i in workorder_dates}, indent=2)} "
@@ -2674,10 +2674,6 @@ class exporter(object):
                         if parent.state == "on_hold"
                     ]
                 ):
-                    debug_comment = ET.Comment(
-                        f" skipping MO {i.name} as parent is on hold {parent_mo_ids}"
-                    )
-                    yield ET.tostring(debug_comment, encoding="unicode")
                     continue
 
             # Check if the parent MO is closed
@@ -2884,8 +2880,7 @@ class exporter(object):
                     # Get remaining duration of the WO
                     time_left = (
                         0
-                        if False
-                        and wo.id not in longest_ids
+                        if wo.id not in longest_ids
                         and qty > 1
                         and (i.name.startswith("P") or i.name.startswith("Q"))
                         and wo.id not in outsourced_ids
@@ -3074,8 +3069,7 @@ class exporter(object):
                     yield "</flows>"
                     # The longest LT suboperation gets all the resources
                     if (
-                        False
-                        and qty > 1
+                        qty > 1
                         and (i.name.startswith("P") or i.name.startswith("Q"))
                         and wo.id in longest_ids
                         and wo.id in wc_blocks
@@ -3221,8 +3215,7 @@ class exporter(object):
                         ),
                     )
                     if (
-                        False
-                        and wo.id in longest_ids
+                        wo.id in longest_ids
                         and qty > 1
                         and (i.name.startswith("P") or i.name.startswith("Q"))
                         and wo.id not in outsourced_ids
