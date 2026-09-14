@@ -2882,7 +2882,7 @@ class exporter(object):
                         0
                         if wo.id not in longest_ids
                         and qty > 1
-                        and (i.name.startswith("P") or i.name.startswith("Q"))
+                        and location == "CP-1"
                         and wo.id not in outsourced_ids
                         else wo.duration_expected
                     )
@@ -3070,7 +3070,7 @@ class exporter(object):
                     # The longest LT suboperation gets all the resources
                     if (
                         qty > 1
-                        and (i.name.startswith("P") or i.name.startswith("Q"))
+                        and location == "CP-1"
                         and wo.id in longest_ids
                         and wo.id in wc_blocks
                     ):
@@ -3217,7 +3217,7 @@ class exporter(object):
                     if (
                         wo.id in longest_ids
                         and qty > 1
-                        and (i.name.startswith("P") or i.name.startswith("Q"))
+                        and location == "CP-1"
                         and wo.id not in outsourced_ids
                     ):
                         loadplan_str = ""
