@@ -2885,6 +2885,7 @@ class exporter(object):
                             if l.state == "assigned" and l.issue_date
                         ]
                         if issue_dates:
+                            suboperation = self.clean_xml_string(wo.display_name)
                             last_reservation_date["%s - %s" % (suboperation, wo.id)] = (
                                 max(issue_dates)
                             )
