@@ -3235,7 +3235,7 @@ class exporter(object):
                     lrd = last_reservation_date.get("%s - %s" % (suboperation, wo.id))
                     if lrd:
                         yield '<doubleproperty name="diq" value="%s"/>' % (
-                            lrd - date.today()
+                            date.today() - lrd
                         ).days
                     if (
                         wo.id in longest_ids
