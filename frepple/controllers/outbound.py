@@ -2878,16 +2878,17 @@ class exporter(object):
                         wo.workcenter_id
                         and self.map_workcenters.get(wo.workcenter_id.id) == "MATERIAL"
                     ):
-                        last_reservation_date["%s - %s" % (suboperation, wo.id)] = max(
-                            [
-                                l.issue_date
-                                for mv in mv_list
-                                for l in (
-                                    mv.move_line_ids | mv.move_orig_ids.move_line_ids
-                                )
-                                if l.state == "assigned"
-                            ]
-                        )
+                        issue_dates = [
+                            l.issue_date
+                            for mv in mv_list
+                            for l in (mv.move_line_ids | mv.move_orig_ids.move_line_ids)
+                            if l.state == "assigned" and l.issue_date
+                        ]
+                        if issue_dates:
+                            last_reservation_date["%s - %s" % (suboperation, wo.id)] = (
+                                max(issue_dates)
+                            )
+
                 for wo in wo_list:
                     suboperation = self.clean_xml_string(wo.display_name)
                     if len(suboperation) > 300:
