@@ -2872,6 +2872,22 @@ class exporter(object):
                     longest_ids.append(longest_id)
                     wc_blocks[longest_id] = wc_ids.copy()
 
+                last_reservation_date = {}
+                for wo in wo_list:
+                    if (
+                        wo.workcenter_id
+                        and self.map_workcenters.get(wo.workcenter_id.id) == "MATERIAL"
+                    ):
+                        last_reservation_date["%s - %s" % (suboperation, wo.id)] = max(
+                            [
+                                l.issue_date
+                                for mv in mv_list
+                                for l in (
+                                    mv.move_line_ids | mv.move_orig_ids.move_line_ids
+                                )
+                                if l.state == "assigned"
+                            ]
+                        )
                 for wo in wo_list:
                     suboperation = self.clean_xml_string(wo.display_name)
                     if len(suboperation) > 300:
@@ -3214,6 +3230,11 @@ class exporter(object):
                             else ""
                         ),
                     )
+                    lrd = last_reservation_date.get("%s - %s" % (suboperation, wo.id))
+                    if lrd:
+                        yield '<doubleproperty name="diq" value="%s"/>' % (
+                            lrd - date.today()
+                        ).days
                     if (
                         wo.id in longest_ids
                         and qty > 1
