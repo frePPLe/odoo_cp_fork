@@ -2874,9 +2874,8 @@ class exporter(object):
 
                 last_reservation_date = {}
                 for wo in wo_list:
-                    if (
-                        wo.workcenter_id
-                        and self.map_workcenters.get(wo.workcenter_id.id) == "MATERIAL"
+                    if wo.workcenter_id and "MATERIAL" in self.map_workcenters.get(
+                        wo.workcenter_id.id
                     ):
                         issue_dates = [
                             l.issue_date
