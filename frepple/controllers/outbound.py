@@ -3153,7 +3153,7 @@ class exporter(object):
                                     )
                                     break
                     first_wo = False
-                    yield "</operation></suboperation>"
+                    yield "</operation></suboperation>\n"
                 yield "</suboperations></operation></operationplan>"
 
                 # Create operationplans for each WO, starting with the last one
