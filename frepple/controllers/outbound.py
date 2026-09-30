@@ -2764,6 +2764,11 @@ class exporter(object):
                 # "confirmed",  # In the "confirmed" status, frepple sees the MO as frozen and unchangeable
                 # "approved" if i["status"]  == "confirmed" else "confirmed", # In-progress can't be rescheduled in frepple, but confirmed MOs
             )
+
+            if i.picking_type_id:
+                yield '<stringproperty name="mo_plant" value=%s/>' % (
+                    quoteattr(i.picking_type_id.name),
+                )
             # Option 2: compute MO start date based on the end date
             # yield '<operationplan type="MO" reference=%s end="%s" quantity="%s" status="%s"><operation name=%s/><flowplans>\n' % (
             #     quoteattr(i["name"]),
