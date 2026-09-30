@@ -2767,7 +2767,7 @@ class exporter(object):
 
             if i.location_src_id:
                 yield '<stringproperty name="mo_plant" value=%s/>' % (
-                    quoteattr(i.location_src_id.name),
+                    quoteattr(i.location_src_id.location_id.name),
                 )
             # Option 2: compute MO start date based on the end date
             # yield '<operationplan type="MO" reference=%s end="%s" quantity="%s" status="%s"><operation name=%s/><flowplans>\n' % (
