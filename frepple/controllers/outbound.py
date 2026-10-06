@@ -2765,9 +2765,21 @@ class exporter(object):
                 # "approved" if i["status"]  == "confirmed" else "confirmed", # In-progress can't be rescheduled in frepple, but confirmed MOs
             )
 
-            if i.picking_type_id and i.picking_type_id.warehouse_id in self.warehouses:
+            if i.picking_type_id and (
+                i.picking_type_id.warehouse_id.id in self.warehouses
+                or i.picking_type_id.default_location_src_id.id in self.map_locations
+                or i.picking_type_id.default_location_dest_id.id in self.map_locations
+            ):
                 yield '<stringproperty name="mo_plant" value=%s/>' % (
-                    quoteattr(self.warehouses[i.picking_type_id.warehouse_id]),
+                    quoteattr(
+                        self.warehouses.get(i.picking_type_id.warehouse_id.id)
+                        or self.map_locations.get(
+                            i.picking_type_id.default_location_src_id.id
+                        )
+                        or self.map_locations.get(
+                            i.picking_type_id.default_location_dest_id.id
+                        )
+                    ),
                 )
             # Option 2: compute MO start date based on the end date
             # yield '<operationplan type="MO" reference=%s end="%s" quantity="%s" status="%s"><operation name=%s/><flowplans>\n' % (
