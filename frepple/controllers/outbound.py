@@ -2049,6 +2049,8 @@ class exporter(object):
         yield "<!-- sales order lines -->\n"
         yield "<demands>\n"
 
+        self.batch_date = {}
+
         for i in so_line:
             name = "%s %d" % (i["order_id"][1], i["id"])
             batch = f'{i["order_id"][1]}-{i["so_sequence"]}'
@@ -2066,6 +2068,7 @@ class exporter(object):
                 or j.get("commitment_date", False)
                 or j["date_order"]
             )
+            self.batch_date[batch] = due
             priority = 1  # We give all customer orders the same default priority
 
             # Possible sales order status are 'draft', 'sent', 'sale', 'done' and 'cancel'
@@ -3219,7 +3222,10 @@ class exporter(object):
                                 if wo.mes_start_date:
                                     dt = wo.mes_start_date
                                 else:
-                                    dt = wo.date_planned_start or now
+                                    # try to find the due date of the sales order this MO is pegged to
+                                    dt = wo.date_planned_start or self.batch_date.get(
+                                        batch, now
+                                    )
 
                                 wo_date = ' start="%s"' % self.formatDateTime(dt)
                     except Exception:
