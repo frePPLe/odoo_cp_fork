@@ -2767,10 +2767,12 @@ class exporter(object):
 
             if (
                 i.picking_type_id
-                and i.picking_type_id.location_id in self.map_locations
+                and i.picking_type_id.default_location_src_id in self.map_locations
             ):
                 yield '<stringproperty name="mo_plant" value=%s/>' % (
-                    quoteattr(self.map_locations[i.picking_type_id.location_id]),
+                    quoteattr(
+                        self.map_locations[i.picking_type_id.default_location_src_id]
+                    ),
                 )
             # Option 2: compute MO start date based on the end date
             # yield '<operationplan type="MO" reference=%s end="%s" quantity="%s" status="%s"><operation name=%s/><flowplans>\n' % (
