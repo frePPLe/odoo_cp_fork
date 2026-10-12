@@ -2182,6 +2182,7 @@ class exporter(object):
                     '<stringproperty name="po_type" value=%s/>'
                     '<doubleproperty name="price_subtotal" value="%s"/>'
                     '<doubleproperty name="price_unit" value="%s"/>'
+                    '<stringproperty name="customer_po" value=%s/>'
                     "</demand>\n"
                 ) % (
                     quoteattr(name),
@@ -2211,6 +2212,11 @@ class exporter(object):
                     ),
                     (i["price_subtotal"] or 0),
                     (i["price_unit"] or 0),
+                    (
+                        quoteattr(j["customer_po_number_id"][1])
+                        if j["customer_po_number_id"]
+                        else ""
+                    ),
                 )
         yield "</demands>\n"
 
