@@ -3110,6 +3110,7 @@ class exporter(object):
                         and location == "CP-1"
                         and wo.id in longest_ids
                         and wo.id in wc_blocks
+                        and False
                     ):
                         load_str = ""
                         for wc_id in wc_blocks[wo.id]:
@@ -3264,6 +3265,7 @@ class exporter(object):
                         and qty > 1
                         and location == "CP-1"
                         and wo.id not in outsourced_ids
+                        and False
                     ):
                         loadplan_str = ""
                         for wc_id in wc_blocks.get(wo.id):
