@@ -2212,8 +2212,8 @@ class exporter(object):
                     ),
                     (i["price_subtotal"] or 0),
                     (i["price_unit"] or 0),
-                    (
-                        quoteattr(j["customer_po_number_id"][1])
+                    quoteattr(
+                        j["customer_po_number_id"][1]
                         if j["customer_po_number_id"]
                         else ""
                     ),
@@ -2470,7 +2470,7 @@ class exporter(object):
                                     + linked_mos[i["id"]][mo]
                                 )
                                 tmpl = self.product_templates[item["template"]]
-                                yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s uom=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                                yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s uom=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
                                     quoteattr(f"{po_line_reference} for {mo}"),
                                     "batch=%s " % quoteattr(batch) if batch else "",
                                     start,
@@ -2480,11 +2480,22 @@ class exporter(object):
                                     quoteattr(tmpl["uom_id"][1] if tmpl else ""),
                                     quoteattr(location),
                                     quoteattr(supplier),
+                                    (
+                                        '<booleanproperty name="quality_check_to_do" value="1"/>'
+                                        if (
+                                            (
+                                                mv.state == "done"
+                                                and mv.picking_id.quality_check_todo
+                                                and mv.picking_id.state != "done"
+                                            )
+                                        )
+                                        else ""
+                                    ),
                                 )
                                 quantity_to_subtract += linked_mos[i["id"]][mo]
 
                         if qty - quantity_to_subtract > 0:
-                            yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                            yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
                                 quoteattr(po_line_reference),
                                 start,
                                 end,
@@ -2492,6 +2503,17 @@ class exporter(object):
                                 quoteattr(item["name"]),
                                 quoteattr(location),
                                 quoteattr(supplier),
+                                (
+                                    '<booleanproperty name="quality_check_to_do" value="1"/>'
+                                    if (
+                                        (
+                                            mv.state == "done"
+                                            and mv.picking_id.quality_check_todo
+                                            and mv.picking_id.state != "done"
+                                        )
+                                    )
+                                    else ""
+                                ),
                             )
             else:
                 # METHOD 2: Create purchasing operations from purchase order lines
