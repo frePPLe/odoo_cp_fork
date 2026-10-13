@@ -2402,15 +2402,12 @@ class exporter(object):
                     if not isinstance(start, datetime):
                         start = datetime.fromisoformat(start)
                     # if the goods are in QC, they'll be available in 3 days from now
+                    quality_check_in_progress = any(
+                        sml.check_state == "in_progress" for sml in mv.move_line_ids
+                    )
                     end = (
                         datetime.now() + timedelta(days=3)
-                        if (
-                            (
-                                mv.state == "done"
-                                and mv.picking_id.quality_check_todo
-                                and mv.picking_id.state != "done"
-                            )
-                        )
+                        if quality_check_in_progress
                         else (i.revised_line_date or i.date_planned or mv.date)
                     )
                     if not isinstance(end, datetime):
@@ -2449,9 +2446,7 @@ class exporter(object):
                             break
                     if not supplier:
                         continue
-                    quality_check_in_progress = any(
-                        sml.check_state == "in_progress" for sml in mv.move_line_ids
-                    )
+
                     if qty >= 0:
                         quantity_to_subtract = 0
                         if i["id"] in linked_mos:
