@@ -3276,11 +3276,11 @@ class exporter(object):
                     po_dates = workorder_po_dates.get(wo.id)
                     if po_dates:
                         if po_dates[0]:
-                            yield '<doubleproperty name="po_delivered_date" value="%s"/>' % (
+                            yield '<doubleproperty name="po_delivered_date" value="%sT00:00:00"/>' % (
                                 po_dates[0].strftime("%Y-%m-%d")
                             )
                         if po_dates[1]:
-                            yield '<doubleproperty name="po_delivered_date" value="%s"/>' % (
+                            yield '<doubleproperty name="po_received_date" value="%sT00:00:00"/>' % (
                                 po_dates[1].strftime("%Y-%m-%d")
                             )
                     lrd = last_reservation_date.get("%s - %s" % (suboperation, wo.id))
