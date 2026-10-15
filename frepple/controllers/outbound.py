@@ -2632,6 +2632,7 @@ class exporter(object):
         workorder_dates = {}
         workorder_vendor = {}
         workorder_po = {}
+        workorder_po_dates = {}
 
         for i in self.generator.getData(
             "outsource.po.reference",
@@ -2658,6 +2659,9 @@ class exporter(object):
                 )
                 if date_planned:
                     workorder_dates[j.id] = date_planned
+
+                if i.delivered_date or i.received_date:
+                    workorder_po_dates[j.id] = (i.delivered_date, i.received_date)
 
         # import xml.etree.ElementTree as ET
 
@@ -3269,6 +3273,16 @@ class exporter(object):
                             else ""
                         ),
                     )
+                    po_dates = workorder_po_dates.get(wo.id)
+                    if po_dates:
+                        if po_dates[0]:
+                            yield '<doubleproperty name="po_delivered_date" value="%s"/>' % (
+                                po_dates[0].strftime("%Y-%m-%d")
+                            )
+                        if po_dates[1]:
+                            yield '<doubleproperty name="po_delivered_date" value="%s"/>' % (
+                                po_dates[1].strftime("%Y-%m-%d")
+                            )
                     lrd = last_reservation_date.get("%s - %s" % (suboperation, wo.id))
                     if lrd:
                         yield '<doubleproperty name="diq" value="%s"/>' % (
