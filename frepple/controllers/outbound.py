@@ -2652,7 +2652,7 @@ class exporter(object):
                     workorder_vendor[j.id] = self.map_customers[
                         i.purchase_id.partner_id.id
                     ]
-                    workorder_po[j.id] = i.purchase_id.name
+                    workorder_po[j.id] = (i.purchase_id.name, i.po_seq_num)
                 date_planned = (
                     i.purchase_line_id.revised_line_date
                     or i.purchase_line_id.date_planned
@@ -3266,8 +3266,11 @@ class exporter(object):
                         ),
                         (
                             (
-                                '<stringproperty name="po_number" value=%s/>\n'
-                                % quoteattr(workorder_po[wo.id])
+                                '<stringproperty name="po_number" value=%s/><doubleproperty name="po_line_number" value="%s"/>\n'
+                                % (
+                                    quoteattr(workorder_po[wo.id][0]),
+                                    workorder_po[wo.id][1],
+                                ),
                             )
                             if workorder_po.get(wo.id)
                             else ""
