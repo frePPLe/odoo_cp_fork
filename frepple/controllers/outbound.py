@@ -3288,6 +3288,9 @@ class exporter(object):
                         yield '<doubleproperty name="diq" value="%s"/>' % (
                             date.today() - lrd
                         ).days
+                    yield '<doubleproperty name="duration_expected" value="%s"/>' % (
+                        wo.duration_expected or 0
+                    )
                     if (
                         wo.id in longest_ids
                         and qty > 1
