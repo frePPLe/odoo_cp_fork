@@ -2677,7 +2677,7 @@ class exporter(object):
             "mrp.production",
             # Option 1: import only the odoo status from "confirmed" onwards
             search=[
-                ("state", "in", ["progress", "confirmed"]),
+                ("state", "in", ["progress", "confirmed", "to_close"]),
                 ("company_id", "=", self.company_id),
             ],
             # Option 2: Also import draft manufacturing order from odoo (to avoid that frepple reproposes it another time)
@@ -3206,7 +3206,9 @@ class exporter(object):
                     # In the "approved" status, frepple can still reschedule the MO in function of material and capacity
                     # In the "confirmed" status, frepple sees the MO as frozen and unchangeable
                     # We don't want to reschedule the subcontracted MOs
-                    if wo.mes_start_date and not wo.mes_end_date:
+                    if wo.production_id.state == "to_close":
+                        state = "completed"
+                    elif wo.mes_start_date and not wo.mes_end_date:
                         state = "confirmed"
                     elif wo.state in ("done", "to_close", "cancel") or (
                         wo.mes_start_date and wo.mes_end_date
