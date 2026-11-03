@@ -2449,7 +2449,8 @@ class exporter(object):
 
                     if qty >= 0:
                         quantity_to_subtract = 0
-                        if i["id"] in linked_mos:
+                        # deactivate the reserved item creation as it creates some confusion
+                        if False and i["id"] in linked_mos:
                             for mo in linked_mos[i["id"]]:
                                 if mo.startswith("CP"):
                                     batch = mo
