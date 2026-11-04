@@ -3002,6 +3002,7 @@ class exporter(object):
                     operation_materials = {}
                     routes = {}
                     uom = {}
+                    mv_item = {}
                     for mv in mv_list:
                         item = self.product_product.get(mv.product_id.id, None)
                         if not item:
@@ -3085,16 +3086,22 @@ class exporter(object):
                                 item["name"], 0
                             ) + (-qty_flow / qty)
                             routes[item["name"]] = mv.routes
+                            mv_item[item["name"]] = mv.id
                     for key in operation_materials:
                         if not self.linked_mo.get(i["name"]) or not self.linked_mo.get(
                             i["name"]
                         ).get(key):
-                            yield '<flow quantity="%s"><item name=%s/>%s</flow>\n' % (
+                            yield '<flow quantity="%s"><item name=%s/>%s%s</flow>\n' % (
                                 operation_materials[key],
                                 quoteattr(key),
                                 (
                                     f'<stringproperty name="route" value={quoteattr(routes[key])}/>'
                                     if routes.get(key)
+                                    else ""
+                                ),
+                                (
+                                    f'<doubleproperty name="stock_move_id" value="{mv_item.get(key)}"/>'
+                                    if mv_item.get(key)
                                     else ""
                                 ),
                             )
