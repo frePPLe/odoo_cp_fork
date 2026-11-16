@@ -1172,6 +1172,9 @@ class exporter(object):
                 "price_extra",
             ],
         ):
+            if "DUMMY MATERIAL" in i["name"]:
+                continue
+
             if first:
                 yield "<!-- products -->\n"
                 yield "<items>\n"
