@@ -2738,8 +2738,9 @@ class exporter(object):
                         i.purchase_id.name,
                         i.po_seq_num,
                         i.purchase_id.user_id.name,
-                        odoo_state.get(i.purchase_id.state),
+                        i.state,
                     )
+
                 date_planned = (
                     i.purchase_line_id.revised_line_date
                     or i.purchase_line_id.date_planned
