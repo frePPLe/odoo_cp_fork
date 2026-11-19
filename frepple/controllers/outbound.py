@@ -2299,6 +2299,18 @@ class exporter(object):
             )
         ]
 
+        odoo_state = {
+            "draft": "RFQ",
+            "sent": "RFQ sent",
+            "to approve": "To Approve",
+            "waiting-approval": "Waiting Approval",
+            "approval_refused": "Approval Refused",
+            "purchase": "Purchase Order",
+            "done": "Locked",
+            "cancel": "Cancelled",
+            "onhold": "On Hold",
+        }
+
         # A second call to get the linked MOs
         linked_mos = {}
         # key = poline_id
@@ -2497,7 +2509,7 @@ class exporter(object):
                                 quantity_to_subtract += linked_mos[i["id"]][mo]
 
                         if qty - quantity_to_subtract > 0:
-                            yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s%s</operationplan>\n" % (
+                            yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s%s%s</operationplan>\n" % (
                                 quoteattr(po_line_reference),
                                 start,
                                 end,
@@ -2516,6 +2528,14 @@ class exporter(object):
                                         % quoteattr(i.order_id.user_id.name)
                                     )
                                     if i.order_id.user_id
+                                    else ""
+                                ),
+                                (
+                                    (
+                                        '<stringproperty name="odoo_state" value=%s/>'
+                                        % quoteattr(odoo_state.get(i.order_id.state))
+                                    )
+                                    if i.order_id.state
                                     else ""
                                 ),
                             )
@@ -2599,7 +2619,7 @@ class exporter(object):
                                 + linked_mos[i["id"]][mo]
                             )
                             tmpl = self.product_templates[item["template"]]
-                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s uom=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
+                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s uom=%s/><location name=%s/><supplier name=%s/>%s%s</operationplan>\n" % (
                                 quoteattr("%s - %s for %s" % (j.name, i.id, mo)),
                                 "batch=%s " % quoteattr(batch) if batch else "",
                                 start,
@@ -2617,11 +2637,19 @@ class exporter(object):
                                     if i.order_id.user_id
                                     else ""
                                 ),
+                                (
+                                    (
+                                        '<stringproperty name="odoo_state" value=%s/>'
+                                        % quoteattr(odoo_state.get(i.order_id.state))
+                                    )
+                                    if i.order_id.state
+                                    else ""
+                                ),
                             )
                             quantity_to_subtract += linked_mos[i["id"]][mo]
 
                     if qty - quantity_to_subtract > 0:
-                        yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
+                        yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s%s</operationplan>\n" % (
                             quoteattr("%s - %s" % (j.name, i.id)),
                             start,
                             end,
@@ -2635,6 +2663,14 @@ class exporter(object):
                                     % quoteattr(i.order_id.user_id.name)
                                 )
                                 if i.order_id.user_id
+                                else ""
+                            ),
+                            (
+                                (
+                                    '<stringproperty name="odoo_state" value=%s/>'
+                                    % quoteattr(odoo_state.get(i.order_id.state))
+                                )
+                                if i.order_id.state
                                 else ""
                             ),
                         )
