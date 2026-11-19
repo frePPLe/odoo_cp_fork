@@ -2704,6 +2704,18 @@ class exporter(object):
         workorder_po = {}
         workorder_po_dates = {}
 
+        odoo_state = {
+            "draft": "RFQ",
+            "sent": "RFQ sent",
+            "to approve": "To Approve",
+            "waiting_approval": "Waiting Approval",
+            "approval_refused": "Approval Refused",
+            "purchase": "Purchase Order",
+            "done": "Locked",
+            "cancel": "Cancelled",
+            "onhold": "On Hold",
+        }
+
         for i in self.generator.getData(
             "outsource.po.reference",
             search=[
@@ -2722,7 +2734,12 @@ class exporter(object):
                     workorder_vendor[j.id] = self.map_customers[
                         i.purchase_id.partner_id.id
                     ]
-                    workorder_po[j.id] = (i.purchase_id.name, i.po_seq_num)
+                    workorder_po[j.id] = (
+                        i.purchase_id.name,
+                        i.po_seq_num,
+                        i.purchase_id.user_id.name,
+                        odoo_state.get(i.purchase_id.state),
+                    )
                 date_planned = (
                     i.purchase_line_id.revised_line_date
                     or i.purchase_line_id.date_planned
@@ -3345,10 +3362,20 @@ class exporter(object):
                         ),
                         (
                             (
-                                '<stringproperty name="po_number" value=%s/><doubleproperty name="po_line_number" value="%s"/>\n'
+                                '<stringproperty name="po_number" value=%s/><doubleproperty name="po_line_number" value="%s"/><stringproperty name="buyer" value=%s/><stringproperty name="odoo_state" value=%s/>\n'
                                 % (
                                     quoteattr(workorder_po[wo.id][0]),
                                     workorder_po[wo.id][1],
+                                    quoteattr(
+                                        workorder_po[wo.id][2]
+                                        if workorder_po[wo.id][2]
+                                        else ""
+                                    ),
+                                    quoteattr(
+                                        workorder_po[wo.id][3]
+                                        if workorder_po[wo.id][3]
+                                        else ""
+                                    ),
                                 ),
                             )
                             if workorder_po.get(wo.id)
