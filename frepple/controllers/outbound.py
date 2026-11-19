@@ -2303,7 +2303,7 @@ class exporter(object):
             "draft": "RFQ",
             "sent": "RFQ sent",
             "to approve": "To Approve",
-            "waiting-approval": "Waiting Approval",
+            "waiting_approval": "Waiting Approval",
             "approval_refused": "Approval Refused",
             "purchase": "Purchase Order",
             "done": "Locked",
