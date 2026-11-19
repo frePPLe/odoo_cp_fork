@@ -2497,7 +2497,7 @@ class exporter(object):
                                 quantity_to_subtract += linked_mos[i["id"]][mo]
 
                         if qty - quantity_to_subtract > 0:
-                            yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
+                            yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s%s</operationplan>\n" % (
                                 quoteattr(po_line_reference),
                                 start,
                                 end,
@@ -2508,6 +2508,14 @@ class exporter(object):
                                 (
                                     '<booleanproperty name="quality_check_to_do" value="1"/>'
                                     if quality_check_in_progress
+                                    else ""
+                                ),
+                                (
+                                    (
+                                        '<stringproperty name="buyer" value=%s/>'
+                                        % quoteattr(i.order_id.user_id.name)
+                                    )
+                                    if i.order_id.user_id
                                     else ""
                                 ),
                             )
@@ -2591,7 +2599,7 @@ class exporter(object):
                                 + linked_mos[i["id"]][mo]
                             )
                             tmpl = self.product_templates[item["template"]]
-                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s uom=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                            yield '<operationplan reference=%s %sordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s uom=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
                                 quoteattr("%s - %s for %s" % (j.name, i.id, mo)),
                                 "batch=%s " % quoteattr(batch) if batch else "",
                                 start,
@@ -2601,11 +2609,19 @@ class exporter(object):
                                 quoteattr(tmpl["uom_id"][1] if tmpl else ""),
                                 quoteattr(location),
                                 quoteattr(supplier),
+                                (
+                                    (
+                                        '<stringproperty name="buyer" value=%s/>'
+                                        % quoteattr(i.order_id.user_id.name)
+                                    )
+                                    if i.order_id.user_id
+                                    else ""
+                                ),
                             )
                             quantity_to_subtract += linked_mos[i["id"]][mo]
 
                     if qty - quantity_to_subtract > 0:
-                        yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/></operationplan>\n" % (
+                        yield '<operationplan reference=%s ordertype="PO" start="%s" end="%s" quantity="%f" status="confirmed">' "<item name=%s/><location name=%s/><supplier name=%s/>%s</operationplan>\n" % (
                             quoteattr("%s - %s" % (j.name, i.id)),
                             start,
                             end,
@@ -2613,6 +2629,14 @@ class exporter(object):
                             quoteattr(item["name"]),
                             quoteattr(location),
                             quoteattr(supplier),
+                            (
+                                (
+                                    '<stringproperty name="buyer" value=%s/>'
+                                    % quoteattr(i.order_id.user_id.name)
+                                )
+                                if i.order_id.user_id
+                                else ""
+                            ),
                         )
         yield "</operationplans>\n"
 
